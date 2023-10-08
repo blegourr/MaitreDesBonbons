@@ -14,6 +14,7 @@ const mongoose = require('mongoose');
 
   const charger = async () => {
     await require('./db/Function')(client);
+    await require('./authDiscordAcount/listen')(client)
   }
 
   charger().then(() => {
@@ -29,9 +30,12 @@ const mongoose = require('mongoose');
       if (!await client.getParty()) {
         await client.createParty().then(() => {
           console.log('nouvelle party crée car il n\'en éxiste pas')
+          client.listenAuthDiscord()
         }).catch((e) => {
           console.log(`une erreur est survenue pendant la création de la party: \n ${e}`)
         })
+      } else {
+        client.listenAuthDiscord()
       }
   
   
