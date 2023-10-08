@@ -1,9 +1,11 @@
 const Koa = require('koa');
-const session = require('koa-session');
-const passport = require('koa-passport');
-const DiscordStrategy = require('passport-discord').Strategy;
 const Router = require('koa-router');
 const WebSocket = require('ws');
+const mime = require('mime');
+const fs = require('fs');
+const path = require('path');
+
+
 
 const app = new Koa();
 const router = new Router();
@@ -11,110 +13,254 @@ const router = new Router();
 // Chargez les variables d'environnement depuis un fichier .env
 require('dotenv').config();
 
-const ensureAuthenticated = (ctx, next) => {
-  if (ctx.isAuthenticated()) {
-    // L'utilisateur est authentifié, continuez vers la page /pool
-    return next();
-  } else {
-    // L'utilisateur n'est pas authentifié, redirigez-le vers la page d'erreur de connexion
-    ctx.redirect('/errorLogin');
-  }
-};
+const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+const REDIRECT_URI = process.env.DISCORD_CALLBACK_URL;
 
-
-module.exports = async client => {
+module.exports = async (client) => {
   client.listenAuthDiscord = () => {
+    // créations des fonction
+
+    function getCookieValue(cookieString, cookieName) {
+      const cookies = cookieString.split(';');
+      for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === cookieName) {
+          return value;
+        }
+      }
+      return null; // Retourne null si le cookie n'est pas trouvé
+    }
+
+
+
+
+
+
 
     // Créez un serveur WebSocket
     const wss = new WebSocket.Server({ noServer: true });
 
     wss.on('connection', (ws, request) => {
       // Gérez les connexions WebSocket ici
-      console.log('Nouvelle connexion WebSocket');
+      ws.send('Bienvenue sur le serveur WebSocket !');
+
+      ws.on('message', async (message) => {
+        try {
+          const parsedMessage = JSON.parse(message);
+          if (!parsedMessage.cookies) {
+            return ws.send(`Cookie invalide`);
+          }
+          // récupère le cookie et vérifie si il est valide si il est valide récupère l'utilisateur dans la db une fois récupérer Traitement les messages
+
+          const access_token = getCookieValue(parsedMessage.cookies, 'access_token')
+
+          if (!access_token) {
+            return ws.send(`Cookie invalide`);
+          }
+
+          const userResponse = await fetch('https://discord.com/api/users/@me', {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          });
+
+          const user = await userResponse.json();
+
+          if (!user || !user.id) {
+            return ws.send(`Cookie invalide`);
+          }
+
+          // vérifie si la command est présente insique que le poolID
+          if (!parsedMessage.command || !parsedMessage.poolId || isNaN(parsedMessage.poolId)) {
+            ws.send('unvalid response')
+          }
+
+          if (parsedMessage.command === 'joinPool') {
+            const data = joinPool(user.id, parsedMessage.poolId)
+            // récupère la liste des joueurs présents sur le serveur et renvoie leur donnée sauf le token_access
+            const db = await client.getParty()
+            // Filtrer les utilisateurs dans la base de données `db` en fonction des ID de `data.pool.users`
+            let users = db.users.filter(user => data.pool.users.includes(user.id));
+
+            const sendData = {
+              users: users.map(user => {
+                return {
+                  id: user.id,
+                  name: user.name,
+                  avatar: user.avatar
+                }
+              }),
+              poolId: data.poolId,
+            }
+
+            ws.send(JSON.stringify(sendData))
+
+          }
+
+        } catch (error) {
+          ws.send("internal serveur error")
+        }
+      });
     });
 
-    // Configuration de la session
-    app.keys = ['your-secret-key']; // Changez ceci en une clé secrète appropriée
-    app.use(session({}, app));
 
-    // Configuration de Passport.js
-    passport.serializeUser((user, done) => {
-      done(null, user.id); // Stockez l'ID de l'utilisateur dans la session
-    });
 
-    passport.deserializeUser((id, done) => {
-      // Récupérez l'utilisateur à partir de l'ID stocké dans la session
-      // et appelez done(null, user) pour le transmettre à la route
-      done(null, id);
-    });
 
-    passport.use(new DiscordStrategy({
-      clientID: process.env.DISCORD_CLIENT_ID,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET,
-      callbackURL: process.env.DISCORD_CALLBACK_URL,
-    }, async (accessToken, refreshToken, profile, done) => {
-      console.log(accessToken, refreshToken, profile, done)
 
-      // ajoute l'utilisateur à la db
-      let db = await client.getParty()
-      const existingUserIndex = db.users.findIndex(user => user.id === profile.id);
-      if (existingUserIndex !== -1) {
-        // Mettez à jour l'utilisateur existant en utilisant l'ID correspondant
-        db.users[existingUserIndex] = {
-          id: profile.id,
-          accessToken: profile.accessToken
-        };
+    router.get('/auth/discord', async (ctx) => {
+      const code = ctx.query.code;
+      if (!code) {
+        ctx.redirect('/errorLogin');
+        return;
+      }
 
-        await client.updateParty(db)
-        console.log('L\'utilisateur existe déjà. Mise à jour effectuée.');
-
-        // Redirection vers la page /pool
-        done(null, profile);
-      } else {
-        // Ajoutez un nouvel utilisateur s'il n'existe pas dans la liste
-        db.users.push({
-          id: profile.id,
-          accessToken: profile.accessToken
+      try {
+        // Échangez le code d'authentification contre un jeton d'accès Discord
+        const response = await fetch('https://discord.com/api/oauth2/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            code: code,
+            grant_type: 'authorization_code',
+            redirect_uri: REDIRECT_URI,
+            scope: 'identify email',
+          }),
         });
 
-        await client.updateParty(db)
-        console.log('Nouvel utilisateur ajouté à la base de données.');
+        const data = await response.json();
+        const accessToken = data.access_token;
 
-        // Redirection vers la page /pool
-        done(null, profile);
+        // Utilisez l'accessToken pour obtenir les informations de l'utilisateur depuis Discord API
+        const userResponse = await fetch('https://discord.com/api/users/@me', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const user = await userResponse.json();
+
+        // Vous avez maintenant les informations de l'utilisateur dans la variable "user"
+        console.log('Informations de l\'utilisateur Discord :', user);
+
+        // Vous pouvez ajouter le traitement des utilisateurs à la base de données ici si nécessaire
+        // ajoute l'utilisateur à la db
+        let db = await client.getParty()
+        const existingUserIndex = db.users.findIndex(user => user.id === user.id);
+        if (existingUserIndex !== -1) {
+          // Mettez à jour l'utilisateur existant en utilisant l'ID correspondant
+          db.users[existingUserIndex] = {
+            id: user.id,
+            accessToken: user.accessToken,
+            name: user.global_name,
+            avatar: user.avatar
+          };
+
+          await client.updateParty(db)
+          console.log('L\'utilisateur existe déjà. Mise à jour effectuée.');
+        } else {
+          // Ajoutez un nouvel utilisateur s'il n'existe pas dans la liste
+          db.users.push({
+            id: user.id,
+            accessToken: user.accessToken,
+            name: user.global_name,
+            avatar: user.avatar
+          });
+
+          await client.updateParty(db)
+          console.log('Nouvel utilisateur ajouté à la base de données.');
+        }
+
+
+        // Mise en cookie du token d'accès
+        ctx.cookies.set('access_token', accessToken, {
+          httpOnly: false,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+        });
+
+        // Redirigez l'utilisateur vers la page /pool
+        ctx.redirect('/pool');
+
+
+
+
+
+        // Redirigez l'utilisateur vers la page /pool
+        ctx.redirect('/pool');
+      } catch (error) {
+        console.error('Erreur lors de l\'authentification Discord :', error);
+        ctx.redirect('/errorLogin');
       }
-    }));
-
-    // Initialisation de Passport.js
-    app.use(passport.initialize());
-    app.use(passport.session());
-
-    // Définition des routes avec koa-router
-    router.get('/auth/discord', async (ctx, next) => {
-      await passport.authenticate('discord', {
-        failureRedirect: 'https://blegourr.fr/errorLogin',
-        successRedirect: 'https://blegourr.fr/pool'
-      })(ctx, next);
     });
 
-    router.get('/pool', ensureAuthenticated, (ctx) => {
-      ctx.body = 'Vous êtes connecté au compte Discord. Connexion en cours au WebSocket.';
 
-      // renvoie la page web 
-
-
-
-      
-
-
-
-
-
-
-    });
 
     router.get('/errorLogin', (ctx) => {
       ctx.body = 'Erreur de connexion.';
+    });
+
+
+
+    // Définition des routes avec koa-router
+    router.all(('(.*)'), async (ctx, next) => {
+      ctx.body = 'Vous êtes connecté au compte Discord. Connexion en cours au WebSocket.';
+      // vérifie la validiter du token avant le chargement de la page (access_token se trouve dans les cookie sous se nom access_token)
+      const accessToken = ctx.cookies.get('access_token');
+
+      if (!accessToken) {
+        ctx.redirect('/errorLogin'); // Redirigez vers la page d'erreur de connexion si le cookie d'accès est manquant
+        return;
+      }
+
+
+      const userResponse = await fetch('https://discord.com/api/users/@me', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const user = await userResponse.json();
+
+      if (!user || !user.id) {
+        ctx.redirect('/errorLogin'); // Redirigez vers la page d'erreur de connexion si le cookie d'accès est manquant
+        return;
+      }
+
+      // une fois le token vérifier ont renvoie la page web react
+      const buildDirectory = path.join(__dirname, '../page/build');
+      const filePath = path.join(buildDirectory, ctx.path);
+      const indexPath = path.join(buildDirectory, 'index.html');
+      try {
+        if (ctx.url.match(/^(?!\/assets).*/) && fs.existsSync(indexPath) && fs.statSync(indexPath).isFile()) {
+          // Si le fichier existe, renvoyer son contenu
+          ctx.body = fs.readFileSync(indexPath, 'utf-8');
+          ctx.type = mime.getType('html'); // Définit le Content-Type à 'text/html'
+        } else if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          // Si le fichier existe, renvoyer son contenu
+          ctx.body = fs.readFileSync(filePath, 'utf-8');
+          const contentType = mime.getType(path.extname(filePath).slice(1)); // Obtient le Content-Type à partir de l'extension du fichier
+          if (contentType) {
+            ctx.type = contentType;
+          }
+        } else {
+          // Sinon, retourner une erreur 404
+          ctx.status = 404;
+        }
+      } catch (err) {
+        // En cas d'erreur, retourner une erreur 500
+        console.error(err);
+        ctx.status = 500;
+      }
+      await next();
+
+
+
+
+
     });
 
     // Utilisation du routeur Koa
@@ -131,6 +277,53 @@ module.exports = async client => {
         wss.emit('connection', ws, request);
       });
     });
+  };
+};
 
+// Représentation des pools
+const pools = {};
+
+// Fonction pour rejoindre une pool
+function joinPool(userId, poolId) {
+  if (!pools[poolId]) {
+    pools[poolId] = {
+      users: [],
+    };
+  }
+
+  const pool = pools[poolId];
+
+  if (!pool.users.includes(userId)) {
+    pool.users.push(userId);
+  }
+
+  return {
+    pool: pool,
+    poolId: poolId
+  }
+}
+
+// Fonction pour quitter une pool
+function leavePool(userId, poolId) {
+  const pool = pools[poolId];
+
+  if (pool && pool.users.includes(userId)) {
+    pool.users = pool.users.filter((id) => id !== userId);
+
+    if (pool.users.length === 0) {
+      delete pools[poolId];
+    }
+  }
+}
+
+// Envoyer un message à une pool
+function sendMessageToPool(poolId, message) {
+  const pool = pools[poolId];
+
+  if (pool) {
+    pool.users.forEach((userId) => {
+      // Envoyer le message à l'utilisateur via WebSocket
+      // Vous devrez implémenter cette partie en fonction de votre technologie WebSocket.
+    });
   }
 }

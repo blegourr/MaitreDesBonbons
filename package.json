@@ -12,7 +12,9 @@
     "koa-passport": "^6.0.0",
     "koa-router": "^12.0.0",
     "koa-session": "^6.4.0",
+    "mime": "^3.0.0",
     "mongoose": "^7.6.0",
+    "node-fetch": "^3.3.2",
     "passport-discord": "^0.1.4",
     "ws": "^8.14.2"
   }
