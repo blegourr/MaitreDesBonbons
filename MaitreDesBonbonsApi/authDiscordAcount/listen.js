@@ -6,7 +6,6 @@ const fs = require('fs');
 const path = require('path');
 
 
-
 const app = new Koa();
 const router = new Router();
 
@@ -77,31 +76,70 @@ module.exports = async (client) => {
           }
 
           if (parsedMessage.command === 'joinPool') {
-            const data = joinPool(user.id, parsedMessage.poolId)
+            const poolUser = joinPool(user.id, parsedMessage.poolId)
             // récupère la liste des joueurs présents sur le serveur et renvoie leur donnée sauf le token_access
-            const db = await client.getParty()
-            // Filtrer les utilisateurs dans la base de données `db` en fonction des ID de `data.pool.users`
-            let users = db.users.filter(user => data.pool.users.includes(user.id));
+            let db = await client.getParty()
 
-            const sendData = {
-              users: users.map(user => {
-                return {
+            
+              // modifie la db de notre utilisateur pour rajouter son ws
+
+              const existingUserIndex = db.users.findIndex(user => user.id === user.id);
+              if (existingUserIndex !== -1) {
+                // Mettez à jour l'utilisateur existant en utilisant l'ID correspondant
+                db.users[existingUserIndex] = {
+                  id: db.users[existingUserIndex].id,
+                  accessToken: db.users[existingUserIndex].accessToken,
+                  name: db.users[existingUserIndex].name,
+                  avatar: db.users[existingUserIndex].avatar,
+                  ws: ws
+                };
+  
+                await client.updateParty(db)
+
+                db = await client.getParty()
+              }
+
+              // Filtrer les utilisateurs dans la base de données `db` en fonction des ID de `poolUser`
+              let users = db.users.filter(user => poolUser.includes(user.id));
+
+              let usersData = []
+
+              users.forEach(user => {
+                usersData.push({
                   id: user.id,
                   name: user.name,
                   avatar: user.avatar
-                }
-              }),
-              poolId: data.poolId,
-            }
+                })
+              })
 
-            ws.send(JSON.stringify(sendData))
+              const sendData = {
+                users: usersData,
+                poolId: parsedMessage.poolId,
+              }
+
+              return ws.send(JSON.stringify(sendData))
+
+            }
+            
+
+
+          if (parsedMessage.command === 'sendMessageToPool' && parsedMessage.message) {
+          // vérifie si l'utilisateur est dans cette pool
+
+
+
+            sendMessageToPool(parsedMessage.poolId, parsedMessage.message)
+            
+
+
 
           }
 
-        } catch (error) {
-          ws.send("internal serveur error")
-        }
-      });
+          } catch (error) {
+            console.error(error)
+            ws.send("internal serveur error")
+          }
+        });
     });
 
 
@@ -144,18 +182,13 @@ module.exports = async (client) => {
 
         const user = await userResponse.json();
 
-        // Vous avez maintenant les informations de l'utilisateur dans la variable "user"
-        console.log('Informations de l\'utilisateur Discord :', user);
-
-        // Vous pouvez ajouter le traitement des utilisateurs à la base de données ici si nécessaire
         // ajoute l'utilisateur à la db
         let db = await client.getParty()
-        const existingUserIndex = db.users.findIndex(user => user.id === user.id);
+        const existingUserIndex = db.users.findIndex(userFind => userFind.id === user.id);
         if (existingUserIndex !== -1) {
           // Mettez à jour l'utilisateur existant en utilisant l'ID correspondant
           db.users[existingUserIndex] = {
             id: user.id,
-            accessToken: user.accessToken,
             name: user.global_name,
             avatar: user.avatar
           };
@@ -164,12 +197,18 @@ module.exports = async (client) => {
           console.log('L\'utilisateur existe déjà. Mise à jour effectuée.');
         } else {
           // Ajoutez un nouvel utilisateur s'il n'existe pas dans la liste
+          console.log(user.global_name)
           db.users.push({
             id: user.id,
-            accessToken: user.accessToken,
             name: user.global_name,
             avatar: user.avatar
           });
+
+          console.log('watt', {
+            id: user.id,
+            name: user.global_name,
+            avatar: user.avatar
+          })
 
           await client.updateParty(db)
           console.log('Nouvel utilisateur ajouté à la base de données.');
@@ -281,7 +320,7 @@ module.exports = async (client) => {
 };
 
 // Représentation des pools
-const pools = {};
+let pools = {};
 
 // Fonction pour rejoindre une pool
 function joinPool(userId, poolId) {
@@ -297,10 +336,7 @@ function joinPool(userId, poolId) {
     pool.users.push(userId);
   }
 
-  return {
-    pool: pool,
-    poolId: poolId
-  }
+  return pool.users
 }
 
 // Fonction pour quitter une pool
@@ -317,13 +353,19 @@ function leavePool(userId, poolId) {
 }
 
 // Envoyer un message à une pool
-function sendMessageToPool(poolId, message) {
+async function sendMessageToPool(poolId, message) {
   const pool = pools[poolId];
+
+  const db = await client.getParty();
 
   if (pool) {
     pool.users.forEach((userId) => {
+      const ws = db.users?.filter((user) => user.id === userId)[0]?.ws
+      if (ws) {
+        ws.send(message)
+      }
       // Envoyer le message à l'utilisateur via WebSocket
       // Vous devrez implémenter cette partie en fonction de votre technologie WebSocket.
-    });
+    })
   }
 }
