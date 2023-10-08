@@ -4,6 +4,8 @@ const WebSocket = require('ws');
 const mime = require('mime');
 const fs = require('fs');
 const path = require('path');
+const EventEmitter = require('events');
+const webSocketEmitter = new EventEmitter();
 
 
 const app = new Koa();
@@ -17,6 +19,70 @@ const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_CALLBACK_URL;
 
 module.exports = async (client) => {
+
+/** création des fonction permettant de gérer le ws
+ * 
+ * 
+ */
+
+
+// Représentation des pools
+let pools = {};
+
+// Fonction pour rejoindre une pool
+function joinPool(userId, poolId, ws) {
+  if (!pools[poolId]) {
+    pools[poolId] = {
+      users: [],
+    };
+  }
+
+  if (!pools[poolId].users.includes(userId)) {
+    pools[poolId].users.push({
+      id: userId,
+      ws: ws
+    });
+  }
+
+  return pools[poolId].users
+}
+
+// Fonction pour quitter une pool
+function leavePool(userId, poolId) {
+  const pool = pools[poolId];
+
+  if (pool && pool.users.includes(userId)) {
+    pool.users = pool.users.filter((id) => id !== userId);
+
+    if (pool.users.length === 0) {
+      delete pools[poolId];
+    }
+  }
+}
+
+// Envoyer un message à une pool
+async function sendMessageToPool(poolId, message) {
+  const pool = pools[poolId];
+
+  if (pool) {
+    pool.users.forEach((user) => {
+      const ws = user.ws
+      if (ws) {
+        webSocketEmitter.emit(ws, {
+         message: message 
+        })
+      }
+      // Envoyer le message à l'utilisateur via WebSocket
+      // Vous devrez implémenter cette partie en fonction de votre technologie WebSocket.
+    })
+  }
+}
+
+/**
+ * connection discord + websockets
+ * 
+ */
+  
   client.listenAuthDiscord = () => {
     // créations des fonction
 
@@ -30,12 +96,6 @@ module.exports = async (client) => {
       }
       return null; // Retourne null si le cookie n'est pas trouvé
     }
-
-
-
-
-
-
 
     // Créez un serveur WebSocket
     const wss = new WebSocket.Server({ noServer: true });
@@ -75,32 +135,27 @@ module.exports = async (client) => {
             ws.send('unvalid response')
           }
 
+
+
+          /**
+           * exécute la commande demander
+           * 
+           */
+
+
           if (parsedMessage.command === 'joinPool') {
-            const poolUser = joinPool(user.id, parsedMessage.poolId)
+            webSocketEmitter.on(`sendMessage${user.id}_${parsedMessage.poolId}`, (data) => {
+              ws.send(data.message)
+            });
+
+            const poolUser = joinPool(user.id, parsedMessage.poolId, `sendMessage${user.id}_${parsedMessage.poolId}`)
+
+
             // récupère la liste des joueurs présents sur le serveur et renvoie leur donnée sauf le token_access
             let db = await client.getParty()
 
-            
-              // modifie la db de notre utilisateur pour rajouter son ws
-
-              const existingUserIndex = db.users.findIndex(user => user.id === user.id);
-              if (existingUserIndex !== -1) {
-                // Mettez à jour l'utilisateur existant en utilisant l'ID correspondant
-                db.users[existingUserIndex] = {
-                  id: db.users[existingUserIndex].id,
-                  name: db.users[existingUserIndex].name,
-                  avatar: db.users[existingUserIndex].avatar,
-                  ws: ws
-                };
-  
-                await client.updateParty(db)
-
-                db = await client.getParty()
-              }
-
               // Filtrer les utilisateurs dans la base de données `db` en fonction des ID de `poolUser`
-              let users = db.users.filter(user => poolUser.includes(user.id));
-
+              let users = db.users.filter(user => poolUser.some(poolObj => poolObj.id === user.id));
               let usersData = []
 
               users.forEach(user => {
@@ -120,8 +175,8 @@ module.exports = async (client) => {
 
                return sendMessageToPool(parsedMessage.poolId, JSON.stringify({
                 type: 'join',
-                message: `L'utilisateur ${db.users[existingUserIndex].name} a rejoint votre groupe`,
-                json: null,
+                message: db.users.filter(userDB => userDB.id === user.id)[0].name ? `L'utilisateur ${db.users.filter(userDB => userDB.id === user.id)[0].name} a rejoint votre groupe`: `Un utilisateur a rejoint votre groupe`,
+                json: sendData,
               }))
 
             }
@@ -130,6 +185,9 @@ module.exports = async (client) => {
 
           if (parsedMessage.command === 'sendMessageToPool' && parsedMessage.message) {
           // vérifie si l'utilisateur est dans cette pool
+
+
+          // envoie le message
             sendMessageToPool(parsedMessage.poolId, parsedMessage.message)
           }
 
@@ -139,10 +197,6 @@ module.exports = async (client) => {
           }
         });
     });
-
-
-
-
 
     router.get('/auth/discord', async (ctx) => {
       const code = ctx.query.code;
@@ -214,26 +268,15 @@ module.exports = async (client) => {
 
         // Redirigez l'utilisateur vers la page /pool
         ctx.redirect('/pool');
-
-
-
-
-
-        // Redirigez l'utilisateur vers la page /pool
-        ctx.redirect('/pool');
       } catch (error) {
         console.error('Erreur lors de l\'authentification Discord :', error);
         ctx.redirect('/errorLogin');
       }
     });
 
-
-
     router.get('/errorLogin', (ctx) => {
       ctx.body = 'Erreur de connexion.';
     });
-
-
 
     // Définition des routes avec koa-router
     router.all(('(.*)'), async (ctx, next) => {
@@ -287,10 +330,6 @@ module.exports = async (client) => {
       }
       await next();
 
-
-
-
-
     });
 
     // Utilisation du routeur Koa
@@ -309,54 +348,3 @@ module.exports = async (client) => {
     });
   };
 };
-
-// Représentation des pools
-let pools = {};
-
-// Fonction pour rejoindre une pool
-function joinPool(userId, poolId) {
-  if (!pools[poolId]) {
-    pools[poolId] = {
-      users: [],
-    };
-  }
-
-  const pool = pools[poolId];
-
-  if (!pool.users.includes(userId)) {
-    pool.users.push(userId);
-  }
-
-  return pool.users
-}
-
-// Fonction pour quitter une pool
-function leavePool(userId, poolId) {
-  const pool = pools[poolId];
-
-  if (pool && pool.users.includes(userId)) {
-    pool.users = pool.users.filter((id) => id !== userId);
-
-    if (pool.users.length === 0) {
-      delete pools[poolId];
-    }
-  }
-}
-
-// Envoyer un message à une pool
-async function sendMessageToPool(poolId, message) {
-  const pool = pools[poolId];
-
-  const db = await client.getParty();
-
-  if (pool) {
-    pool.users.forEach((userId) => {
-      const ws = db.users?.filter((user) => user.id === userId)[0]?.ws
-      if (ws) {
-        ws.send(message)
-      }
-      // Envoyer le message à l'utilisateur via WebSocket
-      // Vous devrez implémenter cette partie en fonction de votre technologie WebSocket.
-    })
-  }
-}

@@ -52,10 +52,8 @@ const party = mongoose.Schema({
   }],
   users: [{
     id: { 'type': String },
-    // accessToken: { 'type': String },
     name: { 'type': String },
     avatar: { 'type': String },
-    ws: {'type': Object}
   }]
 })
 
