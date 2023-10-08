@@ -88,7 +88,6 @@ module.exports = async (client) => {
                 // Mettez à jour l'utilisateur existant en utilisant l'ID correspondant
                 db.users[existingUserIndex] = {
                   id: db.users[existingUserIndex].id,
-                  accessToken: db.users[existingUserIndex].accessToken,
                   name: db.users[existingUserIndex].name,
                   avatar: db.users[existingUserIndex].avatar,
                   ws: ws
@@ -117,7 +116,13 @@ module.exports = async (client) => {
                 poolId: parsedMessage.poolId,
               }
 
-              return ws.send(JSON.stringify(sendData))
+              ws.send(JSON.stringify(sendData))
+
+               return sendMessageToPool(parsedMessage.poolId, JSON.stringify({
+                type: 'join',
+                message: `L'utilisateur ${db.users[existingUserIndex].name} a rejoint votre groupe`,
+                json: null,
+              }))
 
             }
             
@@ -125,14 +130,7 @@ module.exports = async (client) => {
 
           if (parsedMessage.command === 'sendMessageToPool' && parsedMessage.message) {
           // vérifie si l'utilisateur est dans cette pool
-
-
-
             sendMessageToPool(parsedMessage.poolId, parsedMessage.message)
-            
-
-
-
           }
 
           } catch (error) {
@@ -197,18 +195,11 @@ module.exports = async (client) => {
           console.log('L\'utilisateur existe déjà. Mise à jour effectuée.');
         } else {
           // Ajoutez un nouvel utilisateur s'il n'existe pas dans la liste
-          console.log(user.global_name)
           db.users.push({
             id: user.id,
             name: user.global_name,
             avatar: user.avatar
           });
-
-          console.log('watt', {
-            id: user.id,
-            name: user.global_name,
-            avatar: user.avatar
-          })
 
           await client.updateParty(db)
           console.log('Nouvel utilisateur ajouté à la base de données.');
