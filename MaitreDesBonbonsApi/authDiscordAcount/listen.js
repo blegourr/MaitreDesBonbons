@@ -70,7 +70,7 @@ module.exports = async (client) => {
 
       let db = await client.getParty()
 
-      if (db.pool.filter(pool => pool.poolID === poolId) >= 1) {
+      if (db.pool.filter(pool => pool.poolID === poolId).length >= 1) {
         db.pool[db.pool.findIndex(pool => pool.poolID === poolId)[0]] = {
           poolID: poolId,
           players: {
