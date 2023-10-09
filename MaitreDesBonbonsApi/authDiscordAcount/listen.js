@@ -20,69 +20,199 @@ const REDIRECT_URI = process.env.DISCORD_CALLBACK_URL;
 
 module.exports = async (client) => {
 
-/** création des fonction permettant de gérer le ws
- * 
- * 
- */
+  /**
+   * création des fonction pour générer nos ip/mdp
+   * 
+   */
 
-
-// Représentation des pools
-let pools = {};
-
-// Fonction pour rejoindre une pool
-function joinPool(userId, poolId, ws) {
-  if (!pools[poolId]) {
-    pools[poolId] = {
-      users: [],
-    };
+  // Fonction pour générer une adresse IP locale aléatoire (192.168.X.X)
+  function generateRandomIPAddress() {
+    const segment1 = 192;
+    const segment2 = 168;
+    const segment3 = Math.floor(Math.random() * 256); // Valeur aléatoire entre 0 et 255
+    const segment4 = Math.floor(Math.random() * 256); // Valeur aléatoire entre 0 et 255
+    return `${segment1}.${segment2}.${segment3}.${segment4}`;
   }
 
-  if (!pools[poolId].users.includes(userId)) {
-    pools[poolId].users.push({
-      id: userId,
-      ws: ws
-    });
+  // Fonction pour générer un mot de passe aléatoire avec des caractères spéciaux
+  function generateRandomPassword(length) {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      password += charset.charAt(randomIndex);
+    }
+    return password;
   }
 
-  return pools[poolId].users
-}
 
-// Fonction pour quitter une pool
-function leavePool(userId, poolId) {
-  const pool = pools[poolId];
 
-  if (pool && pool.users.includes(userId)) {
-    pool.users = pool.users.filter((id) => id !== userId);
 
-    if (pool.users.length === 0) {
-      delete pools[poolId];
+
+
+  /** 
+   * création des fonction permettant de gérer le ws
+   * 
+   */
+
+
+  // Représentation des pools
+  let pools = {};
+
+  // Fonction pour rejoindre une pool
+  async function joinPool(userId, poolId, ws) {
+
+    // rajoute lé création de la partie
+    if (!pools[poolId]) {
+      pools[poolId] = {
+        users: [],
+      };
+
+      let db = await client.getParty()
+
+      if (db.pool.filter(pool => pool.poolID === poolId) >= 1) {
+        db.pool[db.pool.findIndex(pool => pool.poolID === poolId)[0]] = {
+          poolID: poolId,
+          players: {
+            maitreBonBon: {
+              playersID: 'undefined',
+
+            },
+            agentFbi: {
+              playersID: 'undefined',
+
+            },
+            zero: {
+              playersID: 'undefined',
+              enigme: {
+                ipMdp: {
+                  finish: false,
+                  ip: generateRandomIPAddress(),
+                  mdp: generateRandomPassword(64),
+                },
+                fireWall: {
+                  finish: false,
+                  directoryListing: '/wp-content/uploads', // définie l'url à rentrer pour la faille
+                  SQLInjection: " OR 1 = 1 -- - " //définir le code sql à rentrer
+                },
+                fileEncrypted: {
+                  finish: false,
+                  mdp: generateRandomPassword(64)
+                },
+                coordinate: {
+                  finish: false,
+                }
+              }
+            }
+          },
+          software: {
+            DDOS: false,
+            webVulnerabilityScanner: false,
+            decryptFile: false,
+            webLookHtmlStructure: false,
+          },
+          attackNow: [],
+          settings: {},
+          aide: {}
+        }
+
+        await client.updateParty(db)      
+      } else {
+        db.pool.push({
+          poolID: poolId,
+          players: {
+            maitreBonBon: {
+              playersID: '',
+
+            },
+            agentFbi: {
+              playersID: '',
+
+            },
+            zero: {
+              playersID: '',
+              enigme: {
+                ipMdp: {
+                  finish: false,
+                  ip: generateRandomIPAddress(),
+                  mdp: generateRandomPassword(64),
+                },
+                fireWall: {
+                  finish: false,
+                  directoryListing: '/wp-content/uploads', // définie l'url à rentrer pour la faille
+                  SQLInjection: " OR 1 = 1 -- - " //définir le code sql à rentrer
+                },
+                fileEncrypted: {
+                  finish: false,
+                  mdp: generateRandomPassword(64)
+                },
+                coordinate: {
+                  finish: false,
+                }
+              }
+            }
+          },
+          software: {
+            DDOS: false,
+            webVulnerabilityScanner: false,
+            decryptFile: false,
+            webLookHtmlStructure: false,
+          },
+          attackNow: [],
+          settings: {},
+          aide: {}
+        })
+
+        await client.updateParty(db)   
+      }
+    }
+
+    if (!pools[poolId].users.some(user => user.id === userId)) {
+      pools[poolId].users.push({
+        id: userId,
+        ws: ws
+      });
+    }
+
+    return pools[poolId].users
+  }
+
+  // Fonction pour quitter une pool
+  function leavePool(userId, poolId) {
+    const pool = pools[poolId];
+
+    if (pool && pool.users.includes(userId)) {
+      pool.users = pool.users.filter((id) => id !== userId);
+
+      if (pool.users.length === 0) {
+        delete pools[poolId];
+      }
     }
   }
-}
 
-// Envoyer un message à une pool
-async function sendMessageToPool(poolId, message) {
-  const pool = pools[poolId];
+  // Envoyer un message à une pool
+  async function sendMessageToPool(poolId, message) {
+    const pool = pools[poolId];
 
-  if (pool) {
-    pool.users.forEach((user) => {
-      const ws = user.ws
-      if (ws) {
-        webSocketEmitter.emit(ws, {
-         message: message 
-        })
-      }
-      // Envoyer le message à l'utilisateur via WebSocket
-      // Vous devrez implémenter cette partie en fonction de votre technologie WebSocket.
-    })
+    if (pool) {
+      pool.users.forEach((user) => {
+        const ws = user.ws
+        if (ws) {
+          webSocketEmitter.emit(ws, {
+            message: message
+          })
+        }
+        // Envoyer le message à l'utilisateur via WebSocket
+        // Vous devrez implémenter cette partie en fonction de votre technologie WebSocket.
+      })
+    }
   }
-}
 
-/**
- * connection discord + websockets
- * 
- */
-  
+  /**
+   * connection discord + websockets
+   * 
+   */
+
   client.listenAuthDiscord = () => {
     // créations des fonction
 
@@ -148,54 +278,62 @@ async function sendMessageToPool(poolId, message) {
               ws.send(data.message)
             });
 
-            const poolUser = joinPool(user.id, parsedMessage.poolId, `sendMessage${user.id}_${parsedMessage.poolId}`)
+            const poolUser = await joinPool(user.id, parsedMessage.poolId, `sendMessage${user.id}_${parsedMessage.poolId}`)
 
 
             // récupère la liste des joueurs présents sur le serveur et renvoie leur donnée sauf le token_access
             let db = await client.getParty()
 
-              // Filtrer les utilisateurs dans la base de données `db` en fonction des ID de `poolUser`
-              let users = db.users.filter(user => poolUser.some(poolObj => poolObj.id === user.id));
-              let usersData = []
+            // Filtrer les utilisateurs dans la base de données `db` en fonction des ID de `poolUser`
+            let users = db.users.filter(user => poolUser.some(poolObj => poolObj.id === user.id));
+            let usersData = []
 
-              users.forEach(user => {
-                usersData.push({
-                  id: user.id,
-                  name: user.name,
-                  avatar: user.avatar
-                })
+            users.forEach(user => {
+              usersData.push({
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar
               })
+            })
 
-              const sendData = {
-                users: usersData,
-                poolId: parsedMessage.poolId,
-              }
-
-              ws.send(JSON.stringify(sendData))
-
-               return sendMessageToPool(parsedMessage.poolId, JSON.stringify({
-                type: 'join',
-                message: db.users.filter(userDB => userDB.id === user.id)[0].name ? `L'utilisateur ${db.users.filter(userDB => userDB.id === user.id)[0].name} a rejoint votre groupe`: `Un utilisateur a rejoint votre groupe`,
-                json: sendData,
-              }))
-
+            const sendData = {
+              users: usersData,
+              poolId: parsedMessage.poolId,
+              pool: db.pool.filter(pool => parsedMessage.poolId === pool.poolID)[0]
             }
-            
+
+            ws.send(JSON.stringify(sendData))
+
+            return sendMessageToPool(parsedMessage.poolId, JSON.stringify({
+              type: 'join',
+              message: db.users.filter(userDB => userDB.id === user.id)[0].name ? `L'utilisateur ${db.users.filter(userDB => userDB.id === user.id)[0].name} a rejoint votre groupe` : `Un utilisateur a rejoint votre groupe`,
+              json: sendData,
+            }))
+
+          }
+
 
 
           if (parsedMessage.command === 'sendMessageToPool' && parsedMessage.message) {
-          // vérifie si l'utilisateur est dans cette pool
+            // vérifie si l'utilisateur est dans cette pool
 
 
-          // envoie le message
+            // envoie le message
             sendMessageToPool(parsedMessage.poolId, parsedMessage.message)
           }
 
-          } catch (error) {
-            console.error(error)
-            ws.send("internal serveur error")
+
+          if (parsedMessage.command === 'sendModifDB' && parsedMessage.message) {
+            // récupère la db
+
           }
-        });
+
+
+        } catch (error) {
+          console.error(error)
+          ws.send("internal serveur error")
+        }
+      });
     });
 
     router.get('/auth/discord', async (ctx) => {

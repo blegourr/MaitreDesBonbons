@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const party = mongoose.Schema({
   pool: [{
+    poolID: { 'type': String },
     players: {
       maitreBonBon: {
         playersID: { 'type': String },
