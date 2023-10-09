@@ -4,7 +4,7 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage }) {
   console.log(dataPool, onDataPool,)
   const handleButtonClick = () => {
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
-      sendMessage({ command: 'joinPool', poolId: '123', message: '12345678910' ,cookies: document.cookie});
+      sendMessage(JSON.stringify({ command: 'sendMessageToPool', poolId: '123', message: '12345678910', cookies: document.cookie}));
   };
 
   return (
