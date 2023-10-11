@@ -88,12 +88,11 @@ module.exports = async (client) => {
 
           // rejoindre la pool
           if (parsedMessage.command === 'joinPool') {
+            const wsEvent = `sendMessage_${user.id}_${parsedMessage.poolId}`
             // crée le websockets Event qui convient
-            webSocketEmitter.on(`sendMessage_${user.id}_${parsedMessage.poolId}`, (data) => {
+            webSocketEmitter.on(wsEvent, (data) => {
               ws.send(data.message)
             });
-
-            const wsEvent = `sendMessage_${user.id}_${parsedMessage.poolId}`
 
             poolGlobal = joinPool({
               poolGlobal: poolGlobal,
