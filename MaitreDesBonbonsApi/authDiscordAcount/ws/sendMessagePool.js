@@ -1,4 +1,3 @@
-
 /**
  * 
  * @param {Array[]} poolGlobal 
@@ -7,7 +6,7 @@
  * @param {String || Object} message 
  */
 
-module.exports = async ({ poolGlobal, poolId, message, webSocketEmitter }) => {
+module.exports = ({ poolGlobal, poolId, message, webSocketEmitter }) => {
   // vérification que les données transmisent existe
   if (!poolId || !message || !poolGlobal || !webSocketEmitter) {
     return {
@@ -17,8 +16,7 @@ module.exports = async ({ poolGlobal, poolId, message, webSocketEmitter }) => {
   }
 
   // récupère la pool
-  const pool = poolGlobal[poolId];
-
+  const pool = poolGlobal[poolGlobal.findIndex(room => room.poolId === poolId)];
   // vérifie que la pool existe
   if (!pool) {
     return {
@@ -26,6 +24,9 @@ module.exports = async ({ poolGlobal, poolId, message, webSocketEmitter }) => {
       message: 'poolID not found'
     }
   }
+
+  // vérifie si l'utilisateur se trouve dans cette pool
+
 
   // exécute le code pour tous les utilisateurs
   pool.users.forEach((user) => {

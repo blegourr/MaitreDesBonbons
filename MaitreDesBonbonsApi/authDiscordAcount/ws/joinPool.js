@@ -1,7 +1,10 @@
+const sendMessagePool = require('./sendMessagePool')
+
+
 /**
-   * création des fonction pour générer nos ip/mdp
-   * 
-   */
+ * création des fonction pour générer nos ip/mdp
+ * @param {Number} length
+ */
 
 // Fonction pour générer une adresse IP locale aléatoire (192.168.X.X)
 function generateRandomIPAddress() {
@@ -33,24 +36,24 @@ const poolCreation = ({ poolGlobal, poolId }) => {
   if (!poolGlobal || !poolId) {
     return {
       error: true,
-      message: 'params not found'
+      message: 'params not found (poolCreation)'
     }
   }
 
   if (isNaN(poolId)) {
     return {
       error: true,
-      message: 'poolId is not a number'
+      message: 'poolId is not a number (poolCreation)'
     }
   }
 
   let pool = poolGlobal[poolId]
-
   if (!pool) {
     // crée la pool
-    poolGlobal[poolId] = {
+    poolGlobal.push({
+      poolId: poolId,
       users: [],
-    };
+    });
   }
 
   return poolGlobal
@@ -68,22 +71,21 @@ const poolAddUser = ({ poolGlobal, poolId, userId, ws }) => {
   if (!poolGlobal || !poolId || !userId || !ws) {
     return {
       error: true,
-      message: 'params not found'
+      message: 'params not found (poolAddUser)'
     }
   }
 
   if (isNaN(poolId)) {
     return {
       error: true,
-      message: 'poolId is not a number'
+      message: 'poolId is not a number (poolAddUser)'
     }
   }
-
-  let pool = poolGlobal[poolId]
+  let pool = poolGlobal[poolGlobal.findIndex(room => room.poolId === poolId)]
   if (!pool) {
     return {
       error: true,
-      message: 'pool not found'
+      message: 'pool not found (poolAddUser)'
     }
   }
 
@@ -91,7 +93,7 @@ const poolAddUser = ({ poolGlobal, poolId, userId, ws }) => {
   if (!pool.users.some(user => user.id === userId)) {
 
     // rajoute l'utilisateur dans la pool
-    pool.users.push({
+    poolGlobal[poolGlobal.findIndex(room => room.poolId === poolId)].users.push({
       id: userId,
       ws: ws
     });
@@ -106,20 +108,19 @@ const poolAddUser = ({ poolGlobal, poolId, userId, ws }) => {
  * function permetant la création de la party pour la pool adéquatte
  * @param {Number} poolId 
  * @param {Object} client
- * @returns {object} db
  */
 const creationPartyForPool = async ({ poolId, client }) => {
   if (!client || !poolId) {
     return {
       error: true,
-      message: 'params not found'
+      message: 'params not found (creationPartyForPool)'
     }
   }
 
   if (isNaN(poolId)) {
     return {
       error: true,
-      message: 'poolId is not a number'
+      message: 'poolId is not a number (creationPartyForPool)'
     }
   }
 
@@ -179,6 +180,59 @@ const creationPartyForPool = async ({ poolId, client }) => {
   return db
 }
 
+/**
+ * 
+ * @param {Array} pool 
+ * @param {Number} poolId 
+ * @param {Object} client 
+ * @returns users
+ */
+const getAllUserInPool = async ({ poolGlobal, poolId, client }) => {
+  // vérifie si nos donnée existe
+  if (!client || !poolId || !poolGlobal) {
+    return {
+      error: true,
+      message: 'params not found (getAllUserInPool)'
+    }
+  }
+
+  // vérifie si poolId est un nombre
+  if (isNaN(poolId)) {
+    return {
+      error: true,
+      message: 'poolId is not a number (getAllUserInPool)'
+    }
+  }
+
+  // vérifie si la pool existe
+  const pool = poolGlobal[poolGlobal.findIndex(room => room.poolId === poolId)]
+  if (!pool) {
+    return {
+      error: true,
+      message: 'pool not found (getAllUserInPool)'
+    }
+  }
+
+
+  // GET userPool
+  const usersPool = pool.users
+  if (usersPool < 1) {
+    return {
+      error: true,
+      message: 'userPool not found (getAllUserInPool)'
+    }
+  }
+
+  // récupère la db
+  let db = await client.getParty()
+
+  // Filtrer les utilisateurs de la base de données en fonction des ID de `userPool`
+  let users = db.users.filter(user => usersPool.some(userPool => userPool.id === user.id));
+
+  // return les données utilisateur
+  return users
+}
+
 
 /**
  * création de la function permettant de join la pool
@@ -189,13 +243,13 @@ const creationPartyForPool = async ({ poolId, client }) => {
  * @param {string || Object} message 
  * @param {Object} client
  */
-module.exports = async ({ poolGlobal, userId, poolId, ws, message, client }) => {
+module.exports = async ({ poolGlobal, userId, poolId, client, webSocketEmitter, ws }) => {
 
   // vérification que les données nésésaire sont présente
-  if (!poolGlobal || !userId || !poolId || !ws || !message || !client) {
+  if (!poolGlobal || !userId || !poolId || !client || !webSocketEmitter || !ws) {
     return {
       error: true,
-      message: 'params not found'
+      message: 'params not found (default)'
     }
   }
 
@@ -215,11 +269,33 @@ module.exports = async ({ poolGlobal, userId, poolId, ws, message, client }) => 
   })
 
   // création de la party dans la db
-  let db = creationPartyForPool({
+  await creationPartyForPool({
     poolId: poolId,
     client: client
   })
 
 
-  return db
+  // récupère la liste des joueurs présents sur la pool et renvoie leur donnée
+  const users = await getAllUserInPool({
+    poolGlobal: poolGlobal,
+    poolId: poolId,
+    client: client,
+  })
+
+
+  // création du message à envoyer
+  const message = JSON.stringify({
+    type: 'join',
+    message: users.filter(user => user.id === userId)[0].name ? `L'utilisateur ${users.filter(user => user.id === userId)[0].name} a rejoint votre groupe` : `Un utilisateur a rejoint votre groupe`,
+    json: users
+  })
+  // envoie un message a tous les utilisateurs de la pool
+  sendMessagePool({
+    poolGlobal: poolGlobal,
+    poolId: poolId,
+    message: message,
+    webSocketEmitter: webSocketEmitter
+  })
+
+  return poolGlobal
 }
