@@ -1,3 +1,29 @@
+/**
+   * création des fonction pour générer nos ip/mdp
+   * 
+   */
+
+  // Fonction pour générer une adresse IP locale aléatoire (192.168.X.X)
+  function generateRandomIPAddress() {
+    const segment1 = 192;
+    const segment2 = 168;
+    const segment3 = Math.floor(Math.random() * 256); // Valeur aléatoire entre 0 et 255
+    const segment4 = Math.floor(Math.random() * 256); // Valeur aléatoire entre 0 et 255
+    return `${segment1}.${segment2}.${segment3}.${segment4}`;
+  }
+
+  // Fonction pour générer un mot de passe aléatoire avec des caractères spéciaux
+  function generateRandomPassword(length) {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      password += charset.charAt(randomIndex);
+    }
+    return password;
+  }
+
+
 
 /**
  * 
