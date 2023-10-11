@@ -47,15 +47,15 @@ module.exports = async (pools, userId, poolId, ws, message) => {
             poolID: poolId,
             players: {
               maitreBonBon: {
-                playersID: 'undefined',
+                playersID: '',
   
               },
               agentFbi: {
-                playersID: 'undefined',
+                playersID: '',
   
               },
               zero: {
-                playersID: 'undefined',
+                playersID: '',
                 enigme: {
                   ipMdp: {
                     finish: false,
