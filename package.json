@@ -1,0 +1,26 @@
+{
+  "name": "candy_master_bot",
+  "version": "1.0.0",
+  "description": "Bot discord pour le maitre des bonbons",
+  "main": "main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node src/main.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blegourr/MaitreDesBonbons.git#discord-bot"
+  },
+  "author": "Mayo56 & blegourr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blegourr/MaitreDesBonbons/issues"
+  },
+  "homepage": "https://github.com/blegourr/MaitreDesBonbons/tree/discord-bot#readme",
+  "dependencies": {
+    "discord.js": "^14.13.0",
+    "dotenv": "^16.3.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
