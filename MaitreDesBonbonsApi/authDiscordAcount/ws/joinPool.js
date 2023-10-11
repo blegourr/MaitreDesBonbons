@@ -27,16 +27,34 @@
 
 /**
  * 
- * @param {any[]} pools 
+ * @param {any[]} poolGlobal 
  * @param {number} userId 
  * @param {number} poolId 
  * @param {*} ws 
- * @param {string} message 
+ * @param {string || Object} message 
+ * @param {Object} client
  */
-module.exports = async (pools, userId, poolId, ws, message) => {
-    // rajoute lé création de la partie
-    if (!pools[poolId]) {
-        pools[poolId] = {
+module.exports = async ({poolGlobal, userId, poolId, ws, message, client}) => {
+
+  // vérification que les données nésésaire sont présente
+  if (!poolGlobal || !userId || !poolId || !ws || !message || !client) {
+    return {
+      error: true,
+      message: 'params not found'
+    }
+  }
+
+
+    // vérifie si la pool Existe
+    if (!poolGlobal[poolId]) {
+      // création de la pool
+
+    }
+
+
+
+    if (!poolGlobal[poolId]) {
+        poolGlobal[poolId] = {
           users: [],
         };
   
@@ -55,7 +73,7 @@ module.exports = async (pools, userId, poolId, ws, message) => {
   
               },
               zero: {
-                playersID: '',
+                playersID: 'undefined',
                 enigme: {
                   ipMdp: {
                     finish: false,
@@ -139,12 +157,12 @@ module.exports = async (pools, userId, poolId, ws, message) => {
         }
       }
   
-      if (!pools[poolId].users.some(user => user.id === userId)) {
-        pools[poolId].users.push({
+      if (!poolGlobal[poolId].users.some(user => user.id === userId)) {
+        poolGlobal[poolId].users.push({
           id: userId,
           ws: ws
         });
       }
   
-      return pools[poolId].users
+      return poolGlobal[poolId].users
 }
