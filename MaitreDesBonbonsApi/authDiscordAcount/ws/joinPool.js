@@ -203,8 +203,6 @@ module.exports = async ({ poolGlobal, userId, poolId, ws, message, client }) => 
   poolGlobal = poolCreation({
     poolGlobal: poolGlobal,
     poolId: poolId,
-    userId: userId,
-    ws: ws
   })
 
 
