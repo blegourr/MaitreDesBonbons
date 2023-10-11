@@ -35,12 +35,12 @@ module.exports = async ({ poolGlobal, poolId, message, webSocketEmitter }) => {
     if (!ws) {
       return {
         error: true,
-        message: `ws for user ${user.id}`
+        message: `ws not found for user ${user.id}, in poolID: ${poolId}`
       }
     }
 
     try {
-      // envoie le ws pour tous les utilisateurs
+      // envoie le ws pour l'utilisateurs
       webSocketEmitter.emit(ws, {
         message: message
       })
