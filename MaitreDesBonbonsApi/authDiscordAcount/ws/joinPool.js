@@ -24,13 +24,92 @@
   }
 
 
+  
+/**
+ * création de la function pour crée la pool
+ * @param {Array} poolGlobal
+ * @param {Number} poolId
+ * @returns {Array} poolGlobal
+ */  
+const poolCreation = ({poolGlobal, poolId}) => {
+  if ( !poolGlobal || !poolId ) {
+    return {
+      error: true,
+      message: 'params not found'
+    }
+  }
+
+  if (isNaN(poolId)) {
+    return {
+      error: true,
+      message: 'poolId is not a number'
+    }
+  }
+
+  let pool = poolGlobal[poolId]
+
+  if (!pool) {
+    // crée la pool
+    poolGlobal[poolId] = {
+      users: [],
+    };
+  }
+
+  return poolGlobal
+}
 
 /**
  * 
+ * @param {Array} poolGlobal 
+ * @param {Number} poolId
+ * @param {Number} userId
+ * @param {String} ws
+ * @returns 
+ */
+const poolAddUser = ({poolGlobal, poolId, userId, ws}) => {
+  if (!poolGlobal || !poolId || !userId || !ws) {
+    return {
+      error: true,
+      message: 'params not found'
+    }
+  }
+
+  if (isNaN(poolId)) {
+    return {
+      error: true,
+      message: 'poolId is not a number'
+    }
+  }
+
+  let pool = poolGlobal[poolId]
+  if (!pool) {
+    return {
+      error: true,
+      message: 'pool not found'
+    }
+  }
+  
+  // vérifie si l'utilisateur est déjà dans la pool
+  if (!pool.users.some(user => user.id === userId)) {
+
+    // rajoute l'utilisateur dans la pool
+    pool.users.push({
+      id: userId,
+      ws: ws
+    });
+  }
+
+  return poolGlobal
+}
+
+
+
+/**
+ * création de la function permettant de join la pool
  * @param {any[]} poolGlobal 
  * @param {number} userId 
  * @param {number} poolId 
- * @param {*} ws 
+ * @param {String} ws 
  * @param {string || Object} message 
  * @param {Object} client
  */
@@ -44,20 +123,25 @@ module.exports = async ({poolGlobal, userId, poolId, ws, message, client}) => {
     }
   }
 
+  // création de la pool
+  poolGlobal = poolCreation({
+    poolGlobal: poolGlobal,
+    poolId: poolId,
+    userId: userId,
+    ws: ws
+  })
 
-    // vérifie si la pool Existe
-    if (!poolGlobal[poolId]) {
-      // création de la pool
 
-    }
+  // rajout de l'utilisateur dans la pool
+  poolGlobal = poolAddUser({
+    poolGlobal: poolGlobal,
+    poolId: poolId,
+    userId: userId,
+    ws: ws
+  })
 
+  // création de la party dans la db
 
-
-    if (!poolGlobal[poolId]) {
-        poolGlobal[poolId] = {
-          users: [],
-        };
-  
         let db = await client.getParty()
   
         if (db.pool.filter(pool => pool.poolID === poolId).length >= 1) {
@@ -155,7 +239,6 @@ module.exports = async ({poolGlobal, userId, poolId, ws, message, client}) => {
   
           await client.updateParty(db)   
         }
-      }
   
       if (!poolGlobal[poolId].users.some(user => user.id === userId)) {
         poolGlobal[poolId].users.push({
@@ -165,4 +248,4 @@ module.exports = async ({poolGlobal, userId, poolId, ws, message, client}) => {
       }
   
       return poolGlobal[poolId].users
-}
+    }
