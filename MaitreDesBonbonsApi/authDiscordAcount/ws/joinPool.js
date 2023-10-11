@@ -223,5 +223,5 @@ module.exports = async ({ poolGlobal, userId, poolId, ws, message, client }) => 
   })
 
 
-  return poolGlobal[poolId].users
+  return db
 }
