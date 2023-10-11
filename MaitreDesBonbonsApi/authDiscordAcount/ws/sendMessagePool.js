@@ -6,9 +6,9 @@
  * @param {String || Object} message 
  */
 
-module.exports = ({ poolGlobal, poolId, message, webSocketEmitter }) => {
+module.exports = ({ poolGlobal, poolId, message, webSocketEmitter, userId }) => {
   // vérification que les données transmisent existe
-  if (!poolId || !message || !poolGlobal || !webSocketEmitter) {
+  if (!poolId || !message || !poolGlobal || !webSocketEmitter || !userId) {
     return {
       error: true,
       message: 'params not found'
@@ -26,8 +26,12 @@ module.exports = ({ poolGlobal, poolId, message, webSocketEmitter }) => {
   }
 
   // vérifie si l'utilisateur se trouve dans cette pool
-
-
+  if (pool.users.forEach((user) => user.id === userId)) {
+    return {
+      error: true,
+      message: 'Utilisateur ne se trouve pas dans cette pool'
+    }
+  }
   // exécute le code pour tous les utilisateurs
   pool.users.forEach((user) => {
     // récupère le nom de l'évent

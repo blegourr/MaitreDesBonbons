@@ -7,6 +7,7 @@ const path = require('path');
 const EventEmitter = require('events');
 const webSocketEmitter = new EventEmitter();
 const joinPool = require('./ws/joinPool')
+const sendMessageToPool = require('./ws/sendMessagePool')
 
 const app = new Koa();
 const router = new Router();
@@ -46,11 +47,41 @@ module.exports = async (client) => {
 
     const wss = new WebSocket.Server({ noServer: true });
 
-    wss.on('connection', (ws, request) => {
-      // Gérez les connexions WebSocket ici
-      ws.send('Bienvenue sur le serveur WebSocket !');
+    wss.on('connection', async (ws, request) => {
 
-      // crée l'évent qui sera déclancher à chaque message
+
+      // Gérez les connexions WebSocket ici
+      const cookieHeader = request.headers['cookie'];
+      if (!cookieHeader) {
+        wss.close();
+        return ws.send(`Cookie invalide`);
+      }
+
+      // récupère le cookie et vérifie si il est valide
+      const access_token = getCookieValue(cookieHeader, 'access_token')
+      if (!access_token) {
+        return ws.send(`Cookie invalide`);
+      }
+
+      const userResponse = await fetch('https://discord.com/api/users/@me', {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+
+      const user = await userResponse.json();
+
+      if (!user || !user.id) {
+        return ws.send(`Cookie invalide`);
+      }
+
+
+      // crée le websockets Event qui convient
+      const wsEvent = `sendMessage_${user.id}`
+      webSocketEmitter.on(wsEvent, (data) => {
+        ws.send(data.message)
+      });
+
       ws.on('message', async (message) => {
         try {
           const parsedMessage = JSON.parse(message);
@@ -72,7 +103,6 @@ module.exports = async (client) => {
           });
 
           const user = await userResponse.json();
-
           if (!user || !user.id) {
             return ws.send(`Cookie invalide`);
           }
@@ -88,13 +118,7 @@ module.exports = async (client) => {
 
           // rejoindre la pool
           if (parsedMessage.command === 'joinPool') {
-            const wsEvent = `sendMessage_${user.id}_${parsedMessage.poolId}`
-            // crée le websockets Event qui convient
-            webSocketEmitter.on(wsEvent, (data) => {
-              ws.send(data.message)
-            });
-
-            poolGlobal = joinPool({
+            poolGlobal = await joinPool({
               poolGlobal: poolGlobal,
               userId: user.id,
               poolId: parsedMessage.poolId,
@@ -109,8 +133,9 @@ module.exports = async (client) => {
             sendMessageToPool({
               poolGlobal: poolGlobal,
               poolId: parsedMessage.poolId,
-              message: parsedMessage,
-              webSocketEmitter: webSocketEmitter
+              message: parsedMessage.message,
+              webSocketEmitter: webSocketEmitter,
+              userId: user.id
             })
           }
 
@@ -129,7 +154,7 @@ module.exports = async (client) => {
 
 
 
-
+      ws.send('Bienvenue sur le serveur WebSocket !');
 
     });
 

@@ -33,21 +33,7 @@ function generateRandomPassword(length) {
  * @returns {Array} poolGlobal
  */
 const poolCreation = ({ poolGlobal, poolId }) => {
-  if (!poolGlobal || !poolId) {
-    return {
-      error: true,
-      message: 'params not found (poolCreation)'
-    }
-  }
-
-  if (isNaN(poolId)) {
-    return {
-      error: true,
-      message: 'poolId is not a number (poolCreation)'
-    }
-  }
-
-  let pool = poolGlobal[poolId]
+  let pool = poolGlobal[poolGlobal.findIndex(room => room.poolId === poolId)]
   if (!pool) {
     // crée la pool
     poolGlobal.push({
@@ -68,19 +54,6 @@ const poolCreation = ({ poolGlobal, poolId }) => {
  * @returns poolGlobal
  */
 const poolAddUser = ({ poolGlobal, poolId, userId, ws }) => {
-  if (!poolGlobal || !poolId || !userId || !ws) {
-    return {
-      error: true,
-      message: 'params not found (poolAddUser)'
-    }
-  }
-
-  if (isNaN(poolId)) {
-    return {
-      error: true,
-      message: 'poolId is not a number (poolAddUser)'
-    }
-  }
   let pool = poolGlobal[poolGlobal.findIndex(room => room.poolId === poolId)]
   if (!pool) {
     return {
@@ -110,20 +83,6 @@ const poolAddUser = ({ poolGlobal, poolId, userId, ws }) => {
  * @param {Object} client
  */
 const creationPartyForPool = async ({ poolId, client }) => {
-  if (!client || !poolId) {
-    return {
-      error: true,
-      message: 'params not found (creationPartyForPool)'
-    }
-  }
-
-  if (isNaN(poolId)) {
-    return {
-      error: true,
-      message: 'poolId is not a number (creationPartyForPool)'
-    }
-  }
-
   //récupère la db
   let db = await client.getParty()
 
@@ -188,22 +147,6 @@ const creationPartyForPool = async ({ poolId, client }) => {
  * @returns users
  */
 const getAllUserInPool = async ({ poolGlobal, poolId, client }) => {
-  // vérifie si nos donnée existe
-  if (!client || !poolId || !poolGlobal) {
-    return {
-      error: true,
-      message: 'params not found (getAllUserInPool)'
-    }
-  }
-
-  // vérifie si poolId est un nombre
-  if (isNaN(poolId)) {
-    return {
-      error: true,
-      message: 'poolId is not a number (getAllUserInPool)'
-    }
-  }
-
   // vérifie si la pool existe
   const pool = poolGlobal[poolGlobal.findIndex(room => room.poolId === poolId)]
   if (!pool) {
@@ -246,7 +189,7 @@ const getAllUserInPool = async ({ poolGlobal, poolId, client }) => {
 module.exports = async ({ poolGlobal, userId, poolId, client, webSocketEmitter, ws }) => {
 
   // vérification que les données nésésaire sont présente
-  if (!poolGlobal || !userId || !poolId || !client || !webSocketEmitter || !ws) {
+  if (!poolGlobal || !userId || !poolId || !client || !webSocketEmitter || !ws || isNaN(poolId)) {
     return {
       error: true,
       message: 'params not found (default)'
@@ -258,7 +201,6 @@ module.exports = async ({ poolGlobal, userId, poolId, client, webSocketEmitter, 
     poolGlobal: poolGlobal,
     poolId: poolId,
   })
-
 
   // rajout de l'utilisateur dans la pool
   poolGlobal = poolAddUser({
@@ -294,7 +236,8 @@ module.exports = async ({ poolGlobal, userId, poolId, client, webSocketEmitter, 
     poolGlobal: poolGlobal,
     poolId: poolId,
     message: message,
-    webSocketEmitter: webSocketEmitter
+    webSocketEmitter: webSocketEmitter,
+    userId: userId
   })
 
   return poolGlobal
