@@ -1,9 +1,9 @@
-import { Command } from "../types";
+import { ChatCommandInteraction } from "../types";
 
 export default {
     name: "ping",
-    type: "command",
+    type: "COMMANDE",
     exec: (client, interaction) => {
         
     }
-} as Command;
+} as ChatCommandInteraction;

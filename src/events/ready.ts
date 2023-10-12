@@ -1,4 +1,4 @@
-import { Event } from "../types";
+import { Event_CM } from "../types";
 
 export default {
     name: "ready",
@@ -7,4 +7,4 @@ export default {
     exec: (discord) => {
 
     }
-} as Event;
+} as Event_CM;
