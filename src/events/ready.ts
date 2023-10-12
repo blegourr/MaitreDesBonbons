@@ -1,9 +1,10 @@
+import { Event } from "../types";
 
 export default {
-    name: "",
+    name: "ready",
     once: false,
     is_dev: false,
-    exec: () => {
-        
+    exec: (discord) => {
+
     }
-}
+} as Event;

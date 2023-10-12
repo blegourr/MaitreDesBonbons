@@ -1,9 +1,9 @@
-
+import { Command } from "../types";
 
 export default {
     name: "ping",
     type: "command",
-    exec: () => {
-
-    },
-}
+    exec: (client, interaction) => {
+        
+    }
+} as Command;
