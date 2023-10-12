@@ -48,20 +48,16 @@ for (let fileName of eventFolder) {
 // .on
 candy.on("ready", (client) => {
     for (let event of EventsListe) {
-        if (!event.once && !event.is_dev) {
-            event.exec(client);
-        } else if (!event.once && event.is_dev) {
+        if (!event.once) {
             event.exec(client, CommandeListe);
-        };
+        }
     };
 });
 
 // .once
 candy.once("ready", (client) => {
     for (let event of EventsListe) {
-        if (event.once && !event.is_dev) {
-            event.exec(client);
-        } else if (event.once && event.is_dev) {
+        if (event.once) {
             event.exec(client, CommandeListe);
         };
     };
@@ -133,4 +129,4 @@ candy.on("interactionCreate", (interaction) => {
 // -----------------------------------------
 
 // Lancement du bot
-//candy.login(process.env.DISCORD_TOKEN);
+candy.login(process.env.DISCORD_TOKEN);

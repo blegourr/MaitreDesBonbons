@@ -2,5 +2,9 @@
     "client": {
         "intents": []
     },
-    "is_dev": true
+    "dev": {
+        "is_dev": true,
+        "push_commands": false,
+        "dev_server": ""
+    }
 }

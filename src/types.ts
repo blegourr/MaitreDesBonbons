@@ -97,6 +97,5 @@ export type CommandsList = CommandType[];
 export type Event_CM = {
     name: string,
     once: boolean,
-    is_dev: boolean,
     exec (client:Client, commands?:CommandsList | undefined): void,
 };
