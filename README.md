@@ -34,6 +34,15 @@ Il y a besoin d'un fichier `.env` dans le dossier `config` avec des variable glo
         "is_dev": false,
         "push_commands": false,
         "dev_server": "DEV_DISCORD_SERVER_ID"
+    },
+    "server": {
+        "ws": {
+            "protocol": "WS_PROTOCOL",
+            "domain": "WS_DOMAIN"
+        },
+        "rest": {
+            
+        }
     }
 }
 ```
@@ -41,7 +50,11 @@ Il y a besoin d'un fichier `.env` dans le dossier `config` avec des variable glo
 
 `dev.push_commands` - push les commandes slash si le paramètre est mis en **true**
 
-`dev.is_dev` - Push les commandes slash dans le serveur ( *dev.dev_server* ) si le paramètre est mis en **true**, sinon les slash commandes sont push en global si les paramètres est mis en **false**.
+`dev.is_dev` - push les commandes slash dans le serveur ( *dev.dev_server* ) si le paramètre est mis en **true**, sinon les slash commandes sont push en global si les paramètres est mis en **false**.
+
+`server.ws.protocol` - protocole du websocker.
+
+`server.ws.domain` - domaine du websocket.
 
 ## Interactions
 `/src/interactions/<commandName>.ts`

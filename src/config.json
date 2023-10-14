@@ -5,6 +5,15 @@
     "dev": {
         "is_dev": true,
         "push_commands": false,
-        "dev_server": ""
+        "dev_server": "1158857056116285534"
+    },
+    "server": {
+        "ws": {
+            "protocol": "wss",
+            "domain": "blegourr.fr"
+        },
+        "rest": {
+            
+        }
     }
 }
