@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-const WebSocketProvider = ({ children }) => {
+const WebSocketProvider = ({onPoolId, children }) => {
   const wsUrl = 'wss://blegourr.fr'; // L'URL du serveur WebSocket
   const [ws, setWs] = useState(null);
-  const [receivedInitialResponse, setReceivedInitialResponse] = useState(false);
+  const [poolId, setPoolID] = useState(null);
+  // const [receivedInitialResponse, setReceivedInitialResponse] = useState(false);
 
   const sendMessage = useCallback((message) => {
     // Vérifiez si la connexion WebSocket est établie avant d'envoyer un message
@@ -15,7 +16,6 @@ const WebSocketProvider = ({ children }) => {
     }
   }, [ws]);
 
-
   useEffect(() => {
       const socket = new WebSocket(wsUrl);
 
@@ -25,9 +25,19 @@ const WebSocketProvider = ({ children }) => {
       };
 
       socket.onmessage = (event) => {
+        const result = JSON.parse(event.data)
+
         // Manipulez les données reçues du serveur WebSocket ici
-        console.log('Données reçues du serveur:', event.data);
-        setReceivedInitialResponse(true)
+        console.log('Données reçues du serveur:', result);
+
+        // exécuter l'action approprié selon la commande demander
+        if (result.type === 'join') {
+          // modifie la variable d'environemment pour que l'utilisateur puisse répondre dans la bonne pool
+          setPoolID(result.json.poolId)
+
+
+        }
+
       };
 
       socket.onclose = () => {
@@ -43,13 +53,9 @@ const WebSocketProvider = ({ children }) => {
       };
   }, []); // Ajoutez 'sendMessage' et 'isConnected' au tableau des dépendances
 
-  // Envoyez un message pour rejoindre la pool dès que la connexion est établie
   useEffect(() => {
-    if (ws && receivedInitialResponse) {
-      const joinPoolCommand = JSON.stringify({ command: 'joinPool', poolId: '123', cookies: document.cookie});
-      sendMessage(joinPoolCommand);
-    }
-  }, [ws, sendMessage, receivedInitialResponse]);
+    onPoolId(poolId)
+  }, [poolId, onPoolId])
 
   return (
     <>
@@ -60,6 +66,7 @@ const WebSocketProvider = ({ children }) => {
 
 WebSocketProvider.propTypes = {
   children: PropTypes.func.isRequired, // children est désormais une fonction qui reçoit sendMessage
+  onPoolId: PropTypes.func.isRequired
 };
 
 export default WebSocketProvider;

@@ -75,12 +75,53 @@ module.exports = async (client) => {
         return ws.send(`Cookie invalide`);
       }
 
-
       // crée le websockets Event qui convient
       const wsEvent = `sendMessage_${user.id}`
       webSocketEmitter.on(wsEvent, (data) => {
         ws.send(data.message)
       });
+
+      // fait rejoindre l'utilisateur dans sont ancienne pool ou fait lui rejoindre la dernière pool ou crée un pool si la dernière est foul
+
+
+      // Parcourt les piscines (pools) pour vérifier si un objet 'poolGlobal[x1].users[x2].id' existe.
+      // Si l'objet existe, fait rejoindre l'utilisateur à cette piscine (pool).
+      const poolWithUser = poolGlobal.filter(pool => pool.users.filter(userInPool => userInPool.id === user.id)) 
+      // si l'utilisateur est déjà dans une pool l'ajouter dedans
+      if (poolWithUser.length >= 1) {
+        poolGlobal = await joinPool({
+          poolGlobal: poolGlobal,
+          userId: user.id,
+          poolId: poolWithUser[0].poolId,
+          client: client,
+          webSocketEmitter: webSocketEmitter,
+          ws: wsEvent
+        })
+      } else {
+        // vérifie si la dernière pool est complète
+        const IsFullPool =  poolGlobal.length >= 1 ?  poolGlobal[poolGlobal.length - 1].users.length >= 3 : true
+        if (IsFullPool) {
+          // la dernière pool is full ou il n'y a pas de poolExistante donc on en crée une nouvelle
+          poolGlobal = await joinPool({
+            poolGlobal: poolGlobal,
+            userId: user.id,
+            poolId: poolGlobal.length + 1,
+            client: client,
+            webSocketEmitter: webSocketEmitter,
+            ws: wsEvent
+          })
+        } else {
+          // il reste de la place dans la dernière pool donc ajouter l'utilisateur dedans
+          poolGlobal = await joinPool({
+            poolGlobal: poolGlobal,
+            userId: user.id,
+            poolId: poolGlobal.length - 1,
+            client: client,
+            webSocketEmitter: webSocketEmitter,
+            ws: wsEvent
+          })
+        }
+      }
 
       ws.on('message', async (message) => {
         try {
@@ -116,18 +157,6 @@ module.exports = async (client) => {
            *  éxécute la commande demander
            */
 
-          // rejoindre la pool
-          if (parsedMessage.command === 'joinPool') {
-            poolGlobal = await joinPool({
-              poolGlobal: poolGlobal,
-              userId: user.id,
-              poolId: parsedMessage.poolId,
-              client: client,
-              webSocketEmitter: webSocketEmitter,
-              ws: wsEvent
-            })
-          }
-
           if (parsedMessage.command === 'sendMessageToPool' && parsedMessage.message) {
             // envoie le message
             sendMessageToPool({
@@ -151,11 +180,6 @@ module.exports = async (client) => {
           ws.send("internal serveur error")
         }
       });
-
-
-
-      ws.send('Bienvenue sur le serveur WebSocket !');
-
     });
 
     router.get('/auth/discord', async (ctx) => {

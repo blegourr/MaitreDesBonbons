@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 
-function ChoicePersonage({ dataPool, onDataPool, sendMessage }) {
+function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
   console.log(dataPool, onDataPool,)
   const handleButtonClick = () => {
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
-      sendMessage(JSON.stringify({ command: 'sendMessageToPool', poolId: '123', message: '12345678910', cookies: document.cookie}));
+      sendMessage(JSON.stringify({ command: 'sendMessageToPool', poolId: poolId, message: '12345678910', cookies: document.cookie}));
   };
 
   return (
@@ -18,7 +18,8 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage }) {
 ChoicePersonage.propTypes = {
   dataPool: PropTypes.any, // Changez le type en fonction de ce que vous attendez pour dataPool
   onDataPool: PropTypes.func.isRequired, // Exemple avec un type de fonction requise
-  sendMessage: PropTypes.func.isRequired
+  sendMessage: PropTypes.func.isRequired,
+  poolId: PropTypes.string,
 };
 
 export default ChoicePersonage;

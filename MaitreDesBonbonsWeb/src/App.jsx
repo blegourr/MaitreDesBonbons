@@ -10,9 +10,12 @@ import ChoicePersonage from './compoments/pages/connection/ChoicePersonage/page'
 
 function App() {
   const [dataPool, setDataPool] = useState(null);
+  const [poolId, setPoolId] = useState(null)
 
   return (
-    <WebSocketProvider>
+    <WebSocketProvider 
+      onPoolId={setPoolId}
+    >
       {(sendMessage) => (
         <BrowserRouter>
           <Routes>
@@ -23,7 +26,8 @@ function App() {
                 <ChoicePersonage
                   dataPool={dataPool}
                   onDataPool={setDataPool}
-                  sendMessage={sendMessage} // Propagez la fonction sendMessage
+                  sendMessage={sendMessage}
+                  poolId={poolId}
                 />
               }
             />
