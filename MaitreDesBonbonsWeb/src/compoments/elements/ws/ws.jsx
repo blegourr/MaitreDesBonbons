@@ -33,9 +33,11 @@ const WebSocketProvider = ({onPoolId, children }) => {
         // exécuter l'action approprié selon la commande demander
         if (result.type === 'join') {
           // modifie la variable d'environemment pour que l'utilisateur puisse répondre dans la bonne pool
-          setPoolID(result.json.poolId)
+          return setPoolID(result.json.poolId)
+        }
 
-
+        if (result.type === 'UserJoin') {
+          return console.log(null);
         }
 
       };

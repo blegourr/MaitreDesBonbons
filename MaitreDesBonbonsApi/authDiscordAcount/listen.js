@@ -3,6 +3,7 @@ const Router = require('koa-router');
 const WebSocket = require('ws');
 const mime = require('mime');
 const fs = require('fs');
+const serve = require('koa-static');
 const path = require('path');
 const EventEmitter = require('events');
 const webSocketEmitter = new EventEmitter();
@@ -53,8 +54,9 @@ module.exports = async (client) => {
       // Gérez les connexions WebSocket ici
       const cookieHeader = request.headers['cookie'];
       if (!cookieHeader) {
-        wss.close();
-        return ws.send(`Cookie invalide`);
+        ws.send(`Cookie invalide`);
+        wss.close()
+        ws.close()
       }
 
       // récupère le cookie et vérifie si il est valide
@@ -86,7 +88,7 @@ module.exports = async (client) => {
 
       // Parcourt les piscines (pools) pour vérifier si un objet 'poolGlobal[x1].users[x2].id' existe.
       // Si l'objet existe, fait rejoindre l'utilisateur à cette piscine (pool).
-      const poolWithUser = poolGlobal.filter(pool => pool.users.filter(userInPool => userInPool.id === user.id)) 
+      const poolWithUser = poolGlobal.filter(pool => pool.users.filter(userInPool => userInPool.id === user.id))
       // si l'utilisateur est déjà dans une pool l'ajouter dedans
       if (poolWithUser.length >= 1) {
         poolGlobal = await joinPool({
@@ -99,7 +101,7 @@ module.exports = async (client) => {
         })
       } else {
         // vérifie si la dernière pool est complète
-        const IsFullPool =  poolGlobal.length >= 1 ?  poolGlobal[poolGlobal.length - 1].users.length >= 3 : true
+        const IsFullPool = poolGlobal.length >= 1 ? poolGlobal[poolGlobal.length - 1].users.length >= 3 : true
         if (IsFullPool) {
           // la dernière pool is full ou il n'y a pas de poolExistante donc on en crée une nouvelle
           poolGlobal = await joinPool({
@@ -182,7 +184,7 @@ module.exports = async (client) => {
       });
     });
 
-    router.get('/auth/discord', async (ctx) => {
+    router.get(/^\/auth\/discord/g, async (ctx, next) => {
       const code = ctx.query.code;
       if (!code) {
         ctx.redirect('/errorLogin');
@@ -217,7 +219,10 @@ module.exports = async (client) => {
         });
 
         const user = await userResponse.json();
-
+        if (user.message === 401) {
+          ctx.redirect('/errorLogin');
+          return;
+        }
         // ajoute l'utilisateur à la db
         let db = await client.getParty()
         const existingUserIndex = db.users.findIndex(userFind => userFind.id === user.id);
@@ -243,6 +248,7 @@ module.exports = async (client) => {
           console.log('Nouvel utilisateur ajouté à la base de données.');
         }
 
+        console.log(user);
 
         // Mise en cookie du token d'accès
         ctx.cookies.set('access_token', accessToken, {
@@ -250,29 +256,31 @@ module.exports = async (client) => {
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
         });
 
-        // Redirigez l'utilisateur vers la page /pool
-        ctx.redirect('/pool');
+        // Redirigez l'utilisateur vers la page /
+        ctx.redirect('/');
+        return next();
       } catch (error) {
         console.error('Erreur lors de l\'authentification Discord :', error);
         ctx.redirect('/errorLogin');
+        return next()
       }
     });
 
     router.get('/errorLogin', (ctx) => {
       ctx.body = 'Erreur de connexion.';
+      ctx.status = 401
     });
 
-    // Définition des routes avec koa-router
-    router.all(('(.*)'), async (ctx, next) => {
-      ctx.body = 'Vous êtes connecté au compte Discord. Connexion en cours au WebSocket.';
-      // vérifie la validiter du token avant le chargement de la page (access_token se trouve dans les cookie sous se nom access_token)
-      const accessToken = ctx.cookies.get('access_token');
 
+    // Middleware de vérification du token Discord
+    const verifyTokenMiddleware = async (ctx, next) => {
+      // Vérifiez la validité du token Discord ici
+      const accessToken = ctx.cookies.get('access_token');
       if (!accessToken) {
-        ctx.redirect('/errorLogin'); // Redirigez vers la page d'erreur de connexion si le cookie d'accès est manquant
+        ctx.status = 401;
+        ctx.redirect('/errorLogin');
         return;
       }
-
 
       const userResponse = await fetch('https://discord.com/api/users/@me', {
         headers: {
@@ -283,37 +291,18 @@ module.exports = async (client) => {
       const user = await userResponse.json();
 
       if (!user || !user.id) {
-        ctx.redirect('/errorLogin'); // Redirigez vers la page d'erreur de connexion si le cookie d'accès est manquant
+        ctx.status = 401;
+        ctx.redirect('/errorLogin');
         return;
       }
 
-      // une fois le token vérifier ont renvoie la page web react
-      const buildDirectory = path.join(__dirname, '../page/build');
-      const filePath = path.join(buildDirectory, ctx.path);
-      const indexPath = path.join(buildDirectory, 'index.html');
-      try {
-        if (ctx.url.match(/^(?!\/assets).*/) && fs.existsSync(indexPath) && fs.statSync(indexPath).isFile()) {
-          // Si le fichier existe, renvoyer son contenu
-          ctx.body = fs.readFileSync(indexPath, 'utf-8');
-          ctx.type = mime.getType('html'); // Définit le Content-Type à 'text/html'
-        } else if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-          // Si le fichier existe, renvoyer son contenu
-          ctx.body = fs.readFileSync(filePath, 'utf-8');
-          const contentType = mime.getType(path.extname(filePath).slice(1)); // Obtient le Content-Type à partir de l'extension du fichier
-          if (contentType) {
-            ctx.type = contentType;
-          }
-        } else {
-          // Sinon, retourner une erreur 404
-          ctx.status = 404;
-        }
-      } catch (err) {
-        // En cas d'erreur, retourner une erreur 500
-        console.error(err);
-        ctx.status = 500;
-      }
       await next();
+    };
 
+    // Route combinant les deux middleware app.use
+    router.get(/^(?!\/auth\/discord).*/, verifyTokenMiddleware, async (ctx, next) => {
+      // Le code de votre route ici
+      await serve(path.join(__dirname, '../page/build'))(ctx, next);
     });
 
     // Utilisation du routeur Koa

@@ -240,7 +240,7 @@ module.exports = async ({ poolGlobal, userId, poolId, client, webSocketEmitter, 
 
   // création du message à envoyer
   const messageAllUser = JSON.stringify({
-    type: 'UerJoin',
+    type: 'UserJoin',
     message: users.filter(user => user.id === userId)[0].name ? `L'utilisateur ${users.filter(user => user.id === userId)[0].name} a rejoint votre groupe` : `Un utilisateur a rejoint votre groupe`,
     json: users
   })

@@ -1,0 +1,161 @@
+.ChoicePersonage {
+  /* background: red; */
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.ChoicePersonage .containerPerso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+}
+
+.ChoicePersonage .containerPerso .perso {
+  display: flex;
+  flex-direction: column;
+  width: calc(100%/3);
+  height: 100vh;
+  /* position: absolute; */
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ChoicePersonage .containerPerso .perso .pp {
+  width: 100%;
+}
+
+.ChoicePersonage .containerPerso .perso .pp img {
+  width: 125%;
+  height: 125vh;
+  object-fit: cover;
+  transition: all 0.5s ease-in-out;
+  position: absolute;
+}
+
+.ChoicePersonage .containerPerso .perso:nth-child(2) .pp img {
+  right: 0;
+}
+
+.ChoicePersonage .containerPerso .perso .name {
+ position: absolute;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ width: 100%;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ z-index: 2;
+ text-shadow: #000 2px 2px 2px;
+}
+
+.ChoicePersonage .containerPerso .perso .popup {
+  position: absolute;
+  bottom: 10%;
+  width: 100%;
+  height: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  text-shadow: #000 1.5px 1.5px 1.5px;
+  transition: all 0.3s ease-in-out;
+}
+
+.ChoicePersonage .containerPerso .perso:nth-child(1) .popup {
+    transform: translateX(-100%);
+}
+
+.ChoicePersonage .containerPerso .perso:nth-child(2) .popup {
+  transform: translateY(120%);
+}
+
+.ChoicePersonage .containerPerso .perso:nth-child(3) .popup {
+  transform: translateX(100%);
+}
+
+.ChoicePersonage .containerPerso .perso .selection {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 25%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 2;
+  overflow: hidden;
+  transition: all 0.5s ease-in-out;
+  transform: translateY(-100%);
+  text-shadow: #000 1.5px 1.5px 1.5px;
+}
+
+.ChoicePersonage .containerPerso .perso .selection.active {
+  transform: translateY(0);
+}
+
+.ChoicePersonage .containerPerso .perso .selection img {
+  width: 5rem;
+  height: 5rem;
+  margin: 1.5rem;
+  border-radius: 50%;
+}
+
+/* annimation */
+
+.ChoicePersonage .containerPerso .perso:hover .popup {
+  transform: translate(0, 0);
+}
+
+.ChoicePersonage .containerPerso .perso:hover .pp img {
+  width: 150%;
+  height: 150vh;
+  opacity: 0.8;
+}
+
+.ChoicePersonage .containerPerso .perso:hover:nth-child(2) img {
+  right: -10%;
+}
+
+
+
+.ChoicePersonage .containerPerso .perso .screen {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  border: 3px solid #089c43bb;
+  z-index: 1;
+  display: flex;
+}
+
+@keyframes pan-overlay {
+  from {
+    background-position: 0% 0%;
+  }
+
+  to {
+    background-position: 0% -100%;
+  }
+}
+
+.ChoicePersonage .containerPerso .perso .screen .screen-overlay {
+  background: linear-gradient(
+    #089c4362,
+    #089c4362 4px,
+    #09c15362 4px,
+    #09c15362 9px
+  );
+  background-size: 100% 9px;
+  height: 100vh;
+  width: 100%;
+  animation: pan-overlay 22s infinite linear;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+

@@ -11,6 +11,7 @@
     "events": "^3.3.0",
     "koa": "^2.14.2",
     "koa-router": "^12.0.0",
+    "koa-static": "^5.0.0",
     "mime": "^3.0.0",
     "mongoose": "^7.6.0",
     "node-fetch": "^3.3.2",
