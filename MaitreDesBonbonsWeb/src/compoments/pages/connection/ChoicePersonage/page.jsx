@@ -7,16 +7,52 @@ import Zero from '../../../assets/perso/zero/zeroppdeux.webp'
 import Fbi from '../../../assets/perso/fbi/fbippun.webp'
 import Bonbon from '../../../assets/perso/bonbon/bonbonppun.webp'
 
+function getCookie(name) {
+  const cookies = document.cookie.split('; ');
+  for (const cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.split('=');
+    if (cookieName === name) {
+      return cookieValue;
+    }
+  }
+  return null; // Retourne null si le cookie n'est pas trouvé
+}
 
-function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
+function getAvatarURl(dataPool) {
+  // récupère l'id de l'utilisateur
+  const UserID = getCookie('my_user_id')
+  if (!UserID) {
+    return console.error(`UserID not found`)
+  }
+
+  // définie la pp à notre utilisateur
+  const dataPoolUser = dataPool.filter(user => user.id === UserID)
+
+  if (!dataPoolUser[0]) {
+    return console.error(`dataPoolUser not found`)
+  }
+
+  // récupère l'avatar de l'utilisateur
+  const avatarURl = `https://cdn.discordapp.com/avatars/${UserID}/${dataPoolUser[0].avatar}.webp?size=512`
+  return avatarURl
+}
+
+function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
   const ZeroSelection = useRef()
   const FBIoSelection = useRef()
   const BonbonSelection = useRef()
 
-  console.log(dataPool, onDataPool)
+  const ZeroSelectionAvatar = useRef()
+  const FBIoSelectionAvatar = useRef()
+  const BonbonSelectionAvatar = useRef()
+  
   const handleButtonClickZero = () => {
     // bloque si déjà utiliser par un autre joueur
+    
 
+    // récupère mon avatar url
+    const avatarURl = getAvatarURl(dataPool)
+    ZeroSelectionAvatar.current.src = avatarURl
 
     ZeroSelection.current.classList.toggle('active');
     FBIoSelection.current.classList.remove('active');
@@ -29,6 +65,10 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
   const handleButtonClickFbi = () => {
     // bloque si déjà utiliser par un autre joueur
 
+    // récupère mon avatar url
+    const avatarURl = getAvatarURl(dataPool)
+    FBIoSelectionAvatar.current.src = avatarURl
+
     ZeroSelection.current.classList.remove('active');
     FBIoSelection.current.classList.toggle('active');
     BonbonSelection.current.classList.remove('active');
@@ -40,6 +80,9 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
   const handleButtonClickBonbon = () => {
     // bloque si déjà utiliser par un autre joueur
 
+    // récupère mon avatar url
+    const avatarURl = getAvatarURl(dataPool)
+    BonbonSelectionAvatar.current.src = avatarURl
 
     ZeroSelection.current.classList.remove('active');
     FBIoSelection.current.classList.remove('active');
@@ -59,7 +102,7 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
             <img src={Zero} alt="" />
           </div>
           <div className="selection" ref={ZeroSelection}>
-            <img src="https://cdn.discordapp.com/avatars/675428178373771315/a9c05622daddff4036c6d222929e5844.webp?size=512" alt="" />
+            <img src="" alt="" ref={ZeroSelectionAvatar}/>
             <p>vous avez selectionné Zero</p>
           </div>
           <div className="popup">
@@ -74,7 +117,7 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
             <img src={Fbi} alt="" />
           </div>
           <div className="selection" ref={FBIoSelection}>
-            <img src="https://cdn.discordapp.com/avatars/675428178373771315/a9c05622daddff4036c6d222929e5844.webp?size=512" alt="" />
+            <img src="" alt="" ref={FBIoSelectionAvatar}/>
             <p>vous avez selectionné Agent du FBI</p>
           </div>
           <div className="popup">
@@ -89,7 +132,7 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
             <img src={Bonbon} alt="" />
           </div>
           <div className="selection" ref={BonbonSelection}>
-            <img src="https://cdn.discordapp.com/avatars/675428178373771315/a9c05622daddff4036c6d222929e5844.webp?size=512" alt="" />
+            <img src="" alt="" ref={BonbonSelectionAvatar}/>
             <p>vous avez selectionné Maître des bonbons</p>
           </div>
           <div className="popup">
@@ -106,9 +149,9 @@ function ChoicePersonage({ dataPool, onDataPool, sendMessage, poolId }) {
 
 ChoicePersonage.propTypes = {
   dataPool: PropTypes.any, // Changez le type en fonction de ce que vous attendez pour dataPool
-  onDataPool: PropTypes.func.isRequired, // Exemple avec un type de fonction requise
   sendMessage: PropTypes.func.isRequired,
   poolId: PropTypes.string,
+  dataParty: PropTypes.func.isRequired,
 };
 
 export default ChoicePersonage;

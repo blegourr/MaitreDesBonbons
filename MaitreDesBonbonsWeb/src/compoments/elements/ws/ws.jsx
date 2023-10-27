@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
-const WebSocketProvider = ({onPoolId, children }) => {
+const WebSocketProvider = ({onPoolId, onDataPool, children }) => {
   const wsUrl = 'wss://blegourr.fr'; // L'URL du serveur WebSocket
   const [ws, setWs] = useState(null);
   const [poolId, setPoolID] = useState(null);
@@ -33,10 +33,12 @@ const WebSocketProvider = ({onPoolId, children }) => {
         // exécuter l'action approprié selon la commande demander
         if (result.type === 'join') {
           // modifie la variable d'environemment pour que l'utilisateur puisse répondre dans la bonne pool
+          onDataPool(result.json)
           return setPoolID(result.json.poolId)
         }
 
         if (result.type === 'UserJoin') {
+          onDataPool(result.json)
           return console.log(null);
         }
 
@@ -53,7 +55,7 @@ const WebSocketProvider = ({onPoolId, children }) => {
           socket.close();
         }
       };
-  }, []); // Ajoutez 'sendMessage' et 'isConnected' au tableau des dépendances
+  }, [onDataPool]); // Ajoutez 'sendMessage' et 'isConnected' au tableau des dépendances
 
   useEffect(() => {
     onPoolId(poolId)
@@ -68,7 +70,8 @@ const WebSocketProvider = ({onPoolId, children }) => {
 
 WebSocketProvider.propTypes = {
   children: PropTypes.func.isRequired, // children est désormais une fonction qui reçoit sendMessage
-  onPoolId: PropTypes.func.isRequired
+  onPoolId: PropTypes.func.isRequired,
+  onDataPool: PropTypes.func.isRequired,
 };
 
 export default WebSocketProvider;
