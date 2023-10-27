@@ -171,9 +171,9 @@ module.exports = async (client) => {
           }
 
 
-          if (parsedMessage.command === 'sendModifDB' && parsedMessage.message) {
-            // récupère la db
-
+          if (parsedMessage.command === 'sendModifDBParty' && parsedMessage.message) {
+            //modifie la db et envoie un message au autre utilisateur pour la syncro
+            
           }
 
 
@@ -252,6 +252,11 @@ module.exports = async (client) => {
 
         // Mise en cookie du token d'accès
         ctx.cookies.set('access_token', accessToken, {
+          httpOnly: false,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+        });
+
+        ctx.cookies.set('my_user_id', user.id, {
           httpOnly: false,
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
         });
