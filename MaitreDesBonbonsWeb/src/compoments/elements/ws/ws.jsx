@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-const WebSocketProvider = ({onPoolId, onDataPool, children }) => {
+const WebSocketProvider = ({onPoolId, onDataPool, onDataParty, children }) => {
+  const navigate = useNavigate();
   const wsUrl = 'wss://blegourr.fr'; // L'URL du serveur WebSocket
   const [ws, setWs] = useState(null);
   const [poolId, setPoolID] = useState(null);
-  // const [receivedInitialResponse, setReceivedInitialResponse] = useState(false);
 
   const sendMessage = useCallback((message) => {
     // Vérifiez si la connexion WebSocket est établie avant d'envoyer un message
@@ -38,8 +39,29 @@ const WebSocketProvider = ({onPoolId, onDataPool, children }) => {
         }
 
         if (result.type === 'UserJoin') {
-          onDataPool(result.json)
-          return console.log(null);
+          return onDataPool(result.json)
+        }
+
+        if (result.type === 'ModifDBParty') {
+          try {
+            return onDataParty(JSON.parse(result.json))
+          } 
+          catch {
+            return onDataParty(result.json)
+          }
+        }
+
+        if (result.type === 'StartGame') {
+          // mets à jour la db
+          try {
+            onDataParty(JSON.parse(result.json))
+          } 
+          catch {
+            onDataParty(result.json)
+          }
+
+          // redirige les participant vers le dashboard
+          navigate('/Dashboard')
         }
 
       };
@@ -55,7 +77,7 @@ const WebSocketProvider = ({onPoolId, onDataPool, children }) => {
           socket.close();
         }
       };
-  }, [onDataPool]); // Ajoutez 'sendMessage' et 'isConnected' au tableau des dépendances
+  }, [onDataPool, onDataParty, navigate]);
 
   useEffect(() => {
     onPoolId(poolId)
@@ -72,6 +94,7 @@ WebSocketProvider.propTypes = {
   children: PropTypes.func.isRequired, // children est désormais une fonction qui reçoit sendMessage
   onPoolId: PropTypes.func.isRequired,
   onDataPool: PropTypes.func.isRequired,
+  onDataParty: PropTypes.func.isRequired
 };
 
 export default WebSocketProvider;

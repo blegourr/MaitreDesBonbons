@@ -1,5 +1,4 @@
 .ChoicePersonage {
-  /* background: red; */
   width: 100%;
   height: 100vh;
   display: flex;
@@ -19,10 +18,13 @@
   flex-direction: column;
   width: calc(100%/3);
   height: 100vh;
-  /* position: absolute; */
   position: relative;
   overflow: hidden;
   cursor: pointer;
+}
+
+.ChoicePersonage .containerPerso .perso.block {
+  cursor: not-allowed;
 }
 
 .ChoicePersonage .containerPerso .perso .pp {
@@ -104,6 +106,46 @@
   height: 5rem;
   margin: 1.5rem;
   border-radius: 50%;
+}
+
+.ChoicePersonage .containerButtonStartGame {
+  position: absolute;
+  width: 40%;
+  height: 7.5%;
+  bottom: 7.5%;
+  z-index: 3;
+  transition: all 0.3s ease-in-out;
+  transform: translateY(200%);
+}
+
+.ChoicePersonage .containerButtonStartGame.active {
+  position: absolute;
+  width: 40%;
+  height: 7.5%;
+  bottom: 7.5%;
+  z-index: 3;
+  transition: all 0.3s ease-in-out;
+  transform: translateY(0%);
+}
+
+.ChoicePersonage .containerButtonStartGame button {
+  background: #089c43bb;
+  width: 100%;
+  height: 100%;
+  border-radius: 5rem;
+  border: 0;
+  box-shadow: #00000088 1px 1px 1px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-shadow: #000 1px 1px 1px;
+}
+
+.ChoicePersonage .containerButtonStartGame button:active {
+  cursor: grabbing;
+}
+
+.ChoicePersonage .containerButtonStartGame  button:hover{
+  transform: scale(1.05);
 }
 
 /* annimation */

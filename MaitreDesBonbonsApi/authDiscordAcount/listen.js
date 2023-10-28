@@ -9,6 +9,8 @@ const EventEmitter = require('events');
 const webSocketEmitter = new EventEmitter();
 const joinPool = require('./ws/joinPool')
 const sendMessageToPool = require('./ws/sendMessagePool')
+const ModifDBParty = require('./ws/modificationDbParty');
+const startGame = require('./ws/startGame');
 
 const app = new Koa();
 const router = new Router();
@@ -171,9 +173,28 @@ module.exports = async (client) => {
           }
 
 
-          if (parsedMessage.command === 'sendModifDBParty' && parsedMessage.message) {
+          if (parsedMessage.command === 'ModifDBParty' && parsedMessage.dataBaseModified) {
             //modifie la db et envoie un message au autre utilisateur pour la syncro
-            
+            ModifDBParty({
+              poolGlobal: poolGlobal,
+              poolId: parsedMessage.poolId,
+              dataBaseModified: parsedMessage.dataBaseModified,
+              webSocketEmitter: webSocketEmitter, 
+              client: client,
+              userId: user.id
+            })
+          }
+
+          if (parsedMessage.command === 'StartGame' && parsedMessage.message) {
+            // modifie la db pour lancer la game et renvoie la db a tous les utilisateurs
+            startGame({
+              poolGlobal: poolGlobal,
+              poolId: parsedMessage.poolId,
+              message: parsedMessage.message,
+              webSocketEmitter: webSocketEmitter, 
+              client: client,
+              userId: user.id
+            })
           }
 
 
@@ -248,8 +269,6 @@ module.exports = async (client) => {
           console.log('Nouvel utilisateur ajouté à la base de données.');
         }
 
-        console.log(user);
-
         // Mise en cookie du token d'accès
         ctx.cookies.set('access_token', accessToken, {
           httpOnly: false,
@@ -272,7 +291,7 @@ module.exports = async (client) => {
     });
 
     router.get('/errorLogin', (ctx) => {
-      ctx.body = 'Erreur de connexion.';
+      ctx.body = 'Erreur de connexion. \n\nMoi j\'aime me faire ratio (;';
       ctx.status = 401
     });
 
@@ -306,6 +325,14 @@ module.exports = async (client) => {
 
     // Route combinant les deux middleware app.use
     router.get(/^(?!\/auth\/discord).*/, verifyTokenMiddleware, async (ctx, next) => {
+      // si l'url ne commence pas par /assets/ renvoyer l'html
+      if (!ctx.url.startsWith('/assets/')) {
+        // envoie le fichier html
+        ctx.type = 'html';
+        ctx.body = fs.createReadStream(path.join(__dirname, '../page/build/index.html'));
+        return next()      
+      }
+
       // Le code de votre route ici
       await serve(path.join(__dirname, '../page/build'))(ctx, next);
     });

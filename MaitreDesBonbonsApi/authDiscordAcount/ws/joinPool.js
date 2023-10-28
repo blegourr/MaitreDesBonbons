@@ -136,7 +136,7 @@ const creationPartyForPool = async ({ poolId, client }) => {
     await client.updateParty(db)
   }
 
-  return db
+  return db.pool.filter(pool => pool.poolID === poolId)[0]
 }
 
 /**
@@ -211,11 +211,10 @@ module.exports = async ({ poolGlobal, userId, poolId, client, webSocketEmitter, 
   })
 
   // création de la party dans la db
-  await creationPartyForPool({
+  const party = await creationPartyForPool({
     poolId: poolId,
     client: client
   })
-
 
   // récupère la liste des joueurs présents sur la pool et renvoie leur donnée
   const users = await getAllUserInPool({
@@ -249,6 +248,22 @@ module.exports = async ({ poolGlobal, userId, poolId, client, webSocketEmitter, 
     poolGlobal: poolGlobal,
     poolId: poolId,
     message: messageAllUser,
+    webSocketEmitter: webSocketEmitter,
+    userId: userId
+  })
+
+
+  // crée un message revoyant la party
+  const messageAllUserParty = JSON.stringify({
+    type: 'ModifDBParty',
+    message: `modification de la party`,
+    json: party
+  })
+
+  sendMessagePool({
+    poolGlobal: poolGlobal,
+    poolId: poolId,
+    message: messageAllUserParty,
     webSocketEmitter: webSocketEmitter,
     userId: userId
   })

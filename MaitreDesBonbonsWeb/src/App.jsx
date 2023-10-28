@@ -7,6 +7,7 @@ import './App.css';
 
 // import Page
 import ChoicePersonage from './compoments/pages/connection/ChoicePersonage/page';
+import Dashboard from './compoments/pages/dashboard/Dashboards';
 
 function App() {
   const [dataPool, setDataPool] = useState(null);
@@ -14,13 +15,14 @@ function App() {
   const [poolId, setPoolId] = useState(null)
 
   return (
-    <WebSocketProvider 
-      onPoolId={setPoolId}
-      onDataPool={setDataPool}
-      onDataParty={setDataParty}
-    >
-      {(sendMessage) => (
-        <BrowserRouter>
+    <BrowserRouter>
+
+      <WebSocketProvider
+        onPoolId={setPoolId}
+        onDataPool={setDataPool}
+        onDataParty={setDataParty}
+      >
+        {(sendMessage) => (
           <Routes>
             <Route
               path='/'
@@ -35,10 +37,25 @@ function App() {
                 />
               }
             />
+            <Route
+              path='/Dashboard'
+              exact
+              element={
+                <Dashboard
+                  dataPool={dataPool}
+                  onDataPool={setDataPool}
+                  sendMessage={sendMessage}
+                  poolId={poolId}
+                  dataParty={dataParty}
+                />
+              }
+            />
           </Routes>
-        </BrowserRouter>
-      )}
-    </WebSocketProvider>
+
+
+        )}
+      </WebSocketProvider>
+    </BrowserRouter>
   );
 }
 

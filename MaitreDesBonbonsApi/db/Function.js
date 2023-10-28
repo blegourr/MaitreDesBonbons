@@ -3,7 +3,12 @@ const { Party } = require('../db/config');
 
 module.exports = async client => {
   client.getParty =  async () => {
-    const Partys = await Party.findOne();
+    let Partys = await Party.findOne();
+    if (!Partys) {
+      await client.createParty()
+    }
+    Partys = await Party.findOne();
+
     return Partys ;
   };
 

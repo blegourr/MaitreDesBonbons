@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const party = mongoose.Schema({
   pool: [{
-    poolID: { 'type': String },
+    poolID: { 'type': Number },
     players: {
       maitreBonBon: {
         playersID: { 'type': String },
@@ -46,6 +46,7 @@ const party = mongoose.Schema({
     ],
     settings: {
       // pourras si pas flemme de le dev changer des trucs dans la partie
+      start: { 'type': Boolean, default: false },
     },
     aide: {
       // liste des aide qui sont donée automatiquement (aide donée automatiquement après qu'il soit rester un certains moment sur une égnimes) temps à def par égnime
