@@ -1,3 +1,74 @@
-.zero {
-  
+.Zero {
+  width: 100%;
+  height: 100vh;
+  background: red;
+  overflow: hidden;
+  position: relative;
+}
+
+.Zero .background {
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.Zero .background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.Zero .background .screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #089c43bb;
+  z-index: 1;
+  display: flex;
+}
+
+@keyframes pan-overlay {
+  from {
+    background-position: 0% 0%;
+  }
+
+  to {
+    background-position: 0% -100%;
+  }
+}
+
+.Zero .background .screen .screen-overlay {
+  background: linear-gradient(
+    #089c4362,
+    #089c4362 4px,
+    #09c15362 4px,
+    #09c15362 9px
+  );
+  background-size: 100% 9px;
+  height: 100%;
+  width: 100%;
+  animation: pan-overlay 22s infinite linear;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+.Zero .container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+  justify-items: center;
+  z-index: 2;
+}
+
+.Zero .container .Element {
+  width: 95%;
+  height: 95%;
+  background: #000;
 }

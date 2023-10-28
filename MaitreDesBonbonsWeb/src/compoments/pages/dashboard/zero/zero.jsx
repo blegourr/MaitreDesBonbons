@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import ZeroUn from '../../assets/perso/zero/zeroppun.webp'
+import ZeroUn from '../../../assets/perso/zero/zeroppun.webp'
 import './zero.css'
 
 function Zero({dataPool, sendMessage, poolId, dataParty }) {
@@ -7,11 +7,16 @@ function Zero({dataPool, sendMessage, poolId, dataParty }) {
 
   return (
     <div className='Zero'>
-      <div className="navigator"></div>
-      <div className="software"></div>
-      <div className="software"></div>
-      <div className="software"></div>
+      <div className="container">
+        <div className="navigator Element"></div>
+        <div className="software Element"></div>
+        <div className="software Element"></div>
+        <div className="software Element"></div>
+      </div>
       <div className="background">
+        <div className="screen">
+          <div className="screen-overlay"></div>
+        </div>
         <img src={ZeroUn} alt="" />
       </div>
     </div>

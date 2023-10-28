@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import Zero from './zero';
+import Zero from './zero/zero';
 
 function getCookie(name) {
   const cookies = document.cookie.split('; ');

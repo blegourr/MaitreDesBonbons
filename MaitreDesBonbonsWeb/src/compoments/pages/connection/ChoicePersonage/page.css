@@ -4,6 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
+  overflow: hidden;
 }
 
 .ChoicePersonage .containerPerso {
@@ -144,7 +145,7 @@
   cursor: grabbing;
 }
 
-.ChoicePersonage .containerButtonStartGame  button:hover{
+.ChoicePersonage .containerButtonStartGame button:hover{
   transform: scale(1.05);
 }
 
