@@ -35,7 +35,7 @@ function Dashboard({ dataPool, sendMessage, poolId, dataParty }) {
   return (
     <div className='Dashboard'>
       {/* redirige vers la sous page de zero */}
-      {dataParty.players.maitreBonBon.playersID === UserID && (
+      {dataParty.players.zero.playersID === UserID && (
         <Zero
           dataPool={dataPool}
           sendMessage={sendMessage}
@@ -44,7 +44,7 @@ function Dashboard({ dataPool, sendMessage, poolId, dataParty }) {
         />
       )}
       {dataParty.players.agentFbi.playersID === UserID ? 'page agentFbi' : ''}
-      {dataParty.players.zero.playersID === UserID ? 'page zero' : ''}
+      {dataParty.players.maitreBonBon.playersID === UserID ? 'page maitreBonBon' : ''}
     </div>
   );
 }

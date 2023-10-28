@@ -204,7 +204,7 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
           </div>
           <div className="selection" ref={ZeroSelection}>
             <img src="" alt="" ref={ZeroSelectionAvatar} />
-            <p>vous avez selectionné Zero</p>
+            <p>Zero selectionné </p>
           </div>
           <div className="popup">
             <p>Vous êtes un hacker professionnel paré à collaborer avec le FBI !</p>
@@ -219,7 +219,7 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
           </div>
           <div className="selection" ref={FBIoSelection}>
             <img src="" alt="" ref={FBISelectionAvatar} />
-            <p>vous avez selectionné Agent du FBI</p>
+            <p>Agent du FBI selectionné </p>
           </div>
           <div className="popup">
             <p>Vous êtes notre meilleur agent du FBI !</p>
@@ -234,7 +234,7 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
           </div>
           <div className="selection" ref={BonbonSelection}>
             <img src="" alt="" ref={BonbonSelectionAvatar} />
-            <p>vous avez selectionné Maître des bonbons</p>
+            <p>Maître des bonbons selectionné </p>
           </div>
           <div className="popup">
             <p>Vous êtes le maître des bonbons prêt à tout pour atteindre la réussite !</p>

@@ -1,12 +1,19 @@
 import PropTypes from 'prop-types';
-
+import ZeroUn from '../../assets/perso/zero/zeroppun.webp'
+import './zero.css'
 
 function Zero({dataPool, sendMessage, poolId, dataParty }) {
-  
+
 
   return (
     <div className='Zero'>
-     1234
+      <div className="navigator"></div>
+      <div className="software"></div>
+      <div className="software"></div>
+      <div className="software"></div>
+      <div className="background">
+        <img src={ZeroUn} alt="" />
+      </div>
     </div>
   );
 }

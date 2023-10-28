@@ -90,7 +90,7 @@ module.exports = async (client) => {
 
       // Parcourt les piscines (pools) pour vérifier si un objet 'poolGlobal[x1].users[x2].id' existe.
       // Si l'objet existe, fait rejoindre l'utilisateur à cette piscine (pool).
-      const poolWithUser = poolGlobal.filter(pool => pool.users.filter(userInPool => userInPool.id === user.id))
+      const poolWithUser = poolGlobal.filter(pool => pool.users.filter(userInPool => userInPool.id === user.id).length >= 1)
       // si l'utilisateur est déjà dans une pool l'ajouter dedans
       if (poolWithUser.length >= 1) {
         poolGlobal = await joinPool({
@@ -119,7 +119,7 @@ module.exports = async (client) => {
           poolGlobal = await joinPool({
             poolGlobal: poolGlobal,
             userId: user.id,
-            poolId: poolGlobal.length - 1,
+            poolId: poolGlobal.length,
             client: client,
             webSocketEmitter: webSocketEmitter,
             ws: wsEvent
