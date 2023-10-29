@@ -1,3 +1,5 @@
 module.exports = {
-  Party: require('./dbModel'),
+  Party: require('./Party'),
+  User: require('./User'),
+  Pool: require('./Pool'),
 };
