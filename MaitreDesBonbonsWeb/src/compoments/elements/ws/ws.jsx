@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';import { io } from 'socket.io-client';
 
-const WebSocketProvider = ({onPoolId, onDataPool, onDataParty, children }) => {
+const WebSocketProvider = ({onDataPool, onDataParty, children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
@@ -12,9 +12,15 @@ const WebSocketProvider = ({onPoolId, onDataPool, onDataParty, children }) => {
       console.log('Connecté au serveur socket.io');
     });
 
-    newSocket.on('message', (data) => {
+    newSocket.on('UserJoin', (data) => {
+      console.log('Message du serveur :', data);
+      return onDataPool(data)
+    });
+
+    newSocket.on('ModifDBParty', (data) => {
       console.log('Message du serveur :', data);
       // Faites quelque chose avec les données reçues
+      onDataParty(data)
     });
 
 
@@ -24,9 +30,9 @@ const WebSocketProvider = ({onPoolId, onDataPool, onDataParty, children }) => {
     return () => {
       newSocket.disconnect();
     };
-  }, []);
+  }, [onDataParty, onDataPool]);
 
-  const sendMessage = useCallback((type, message) => {
+  const sendMessage = useCallback(({type, message}) => {
     // Envoyer un message au serveur socket.io
     socket.emit(type, message);
   }, [socket]);
@@ -40,7 +46,6 @@ const WebSocketProvider = ({onPoolId, onDataPool, onDataParty, children }) => {
 
 WebSocketProvider.propTypes = {
   children: PropTypes.func.isRequired, // children est désormais une fonction qui reçoit sendMessage
-  onPoolId: PropTypes.func.isRequired,
   onDataPool: PropTypes.func.isRequired,
   onDataParty: PropTypes.func.isRequired
 };

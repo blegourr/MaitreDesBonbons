@@ -8,7 +8,7 @@ import Headers from './Header/ElementHeader'
 import ExplicationPersonnage from '../../personnage/zero/ExplicationPersonnage/explicationPersonnage'
 
 
-function Zero({ dataPool, sendMessage, poolId, dataParty }) {
+function Zero({ dataPool, sendMessage, dataParty }) {
   const [selectSoftware, setSelectSoftware] = useState({
     ZeroContainerElementSoftware1: 'explicationPersonnage',
     ZeroContainerElementSoftware2: 'explicationPersonnage',
@@ -44,7 +44,6 @@ function Zero({ dataPool, sendMessage, poolId, dataParty }) {
 Zero.propTypes = {
   dataPool: PropTypes.any, // Changez le type en fonction de ce que vous attendez pour dataPool
   sendMessage: PropTypes.func.isRequired,
-  poolId: PropTypes.string,
   dataParty: PropTypes.object.isRequired,
 };
 

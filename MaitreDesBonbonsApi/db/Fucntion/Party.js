@@ -14,7 +14,7 @@ async function createparty(partyID) {
 // Fonction pour récupérer une party par son partyID
 async function getpartyBypartyID(partyID) {
   try {
-    const party = await party.findOne({ partyID });
+    const party = await Party.findOne({ partyID });
     return party;
   } catch (error) {
     throw error;
@@ -24,7 +24,7 @@ async function getpartyBypartyID(partyID) {
 // Fonction pour mettre à jour une party par son partyId
 async function updatepartyBypartyID(partyId, updatedData) {
   try {
-    const updatedparty = await party.findOneAndUpdate({ partyId }, updatedData, { new: true });
+    const updatedparty = await Party.findOneAndUpdate({ partyID: partyId }, updatedData, { new: true });
     return updatedparty;
   } catch (error) {
     throw error;
@@ -34,7 +34,7 @@ async function updatepartyBypartyID(partyId, updatedData) {
 // Fonction pour supprimer une party par son partyId
 async function deletepartyBypartyID(partyId) {
   try {
-    await party.deleteOne({ partyId });
+    await Party.deleteOne({ partyId });
   } catch (error) {
     throw error;
   }

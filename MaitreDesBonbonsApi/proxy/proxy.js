@@ -8,12 +8,17 @@ const fs = require('fs');
 const AuthentificationDiscord = require('./Function/AuthentificationDiscord')
 const cookieFunction = require('./Function/cookieGestion')
 const joinPool = require('./Function/ws/joinPool')
+const modificationDbParty = require('./Function/ws/modificationDbParty')
+const EventEmitter = require('events');
+const startGame = require('./Function/ws/startGame');
 /**----------------------------------------------------
  *              création config
- *-----------------------------------------------------
- */
+*-----------------------------------------------------
+*/
 const app = new Koa();
 const router = new Router();
+
+const eventEmitter = new EventEmitter();
 
 // Chargez les variables d'environnement depuis un fichier .env
 require('dotenv').config();
@@ -50,17 +55,41 @@ const start = () => {
 
     // vérifie si le token est valide
     const user = await AuthentificationDiscord.verifyToken(access_token)
+
+    // crée un event permettant de recontacter l'utilisateur
+    const socketEmitUser = `sendMessage_${user.id}`
+    eventEmitter.on(socketEmitUser, ({event, message}) => {
+      if (!event || !message) {
+        return console.error('error -> event or message are undefined', event, message)
+      }
+      socket.emit(event, message)
+    });
+
+
+
     // faits rejoindre l'utilisateur une pool
     joinPool({
       userId: user.id,
+      eventEmitter: eventEmitter,
+      socketEmitUser: socketEmitUser
     })
 
     socket.on('ModifDBParty', (data) => {
-      // Commence la partie 
+      // modifie la db et renvoie les modification à tous les utilisateurs
+      modificationDbParty({
+        userId: user.id,
+        dataBaseModified: data.json,
+        eventEmitter: eventEmitter,
+      })
     });
 
     socket.on('StartGame', (data) => {
-      // Commence la partie 
+      // Commence la partie
+      startGame({
+        userId: user.id,
+        partyID: data,
+        eventEmitter: eventEmitter,
+      })
     });
 
     socket.on('disconnect', () => {

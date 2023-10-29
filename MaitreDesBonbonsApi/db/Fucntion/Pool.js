@@ -1,4 +1,5 @@
 const Pool = require('../Pool');
+const FunctionDbUser = require('../../db/Fucntion/User')
 
 // Fonction pour créer une pool
 async function createPool(poolID, users = {}) {
@@ -80,9 +81,6 @@ async function getFirstAvailablePool() {
     if (pools.length > 0) {
       return pools[0].poolID; // Renvoie l'ID de la première piscine avec de la place
     }
-    
-
-    console.log('Aucune piscine avec de la place n\'a été trouvée.');
   } catch (error) {
     console.error('Une erreur s\'est produite :', error);
   }
@@ -90,7 +88,7 @@ async function getFirstAvailablePool() {
 
 
 // Fonction pour ajouter un utilisateur à une piscine
-async function addUserToPool(poolId, userId) {
+async function addUserToPool(poolId, userId, socketEmitUser) {
   try {
     // Recherchez la piscine par son poolId
     const pool = await Pool.findOne({ poolID: poolId });
@@ -103,8 +101,12 @@ async function addUserToPool(poolId, userId) {
 
     // Vérifiez le nombre d'utilisateurs dans la piscine
     if (pool.users.size < 3) {
+      // récupère les donnée de l'utilisateur
+      const user = await FunctionDbUser.getUserByUserID(userId)
+
+
       // Ajoutez l'utilisateur à la piscine en utilisant la méthode set de la Map
-      pool.users.set(userId, { userId: userId });
+      pool.users.set(userId, { userId: userId, avatar: user.avatar, name: user.name, socketEmitUser: socketEmitUser });
 
       // Enregistrez la piscine mise à jour dans la base de données
       console.log(`Utilisateur ${userId} ajouté à la piscine ${poolId}.`);

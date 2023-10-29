@@ -13,7 +13,7 @@ function getCookie(name) {
   return null; // Retourne null si le cookie n'est pas trouvé
 }
 
-function Dashboard({ dataPool, sendMessage, poolId, dataParty }) {
+function Dashboard({ dataPool, sendMessage, dataParty }) {
   const navigate = useNavigate();
 
   // récupère la data party et vérifie dans qu'elle personnage utilise notre players
@@ -39,7 +39,6 @@ function Dashboard({ dataPool, sendMessage, poolId, dataParty }) {
         <Zero
           dataPool={dataPool}
           sendMessage={sendMessage}
-          poolId={poolId}
           dataParty={dataParty}
         />
       )}
@@ -52,7 +51,6 @@ function Dashboard({ dataPool, sendMessage, poolId, dataParty }) {
 Dashboard.propTypes = {
   dataPool: PropTypes.any, // Changez le type en fonction de ce que vous attendez pour dataPool
   sendMessage: PropTypes.func.isRequired,
-  poolId: PropTypes.string,
   dataParty: PropTypes.object.isRequired,
 };
 

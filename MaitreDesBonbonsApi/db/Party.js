@@ -4,15 +4,15 @@ const Party = mongoose.Schema({
   partyID: { 'type': String },
   players: {
     maitreBonBon: {
-      playersID: { 'type': String },
+      playersID: { 'type': String, default: '' },
 
     },
     agentFbi: {
-      playersID: { 'type': String },
+      playersID: { 'type': String, default: '' },
 
     },
     zero: {
-      playersID: { 'type': String },
+      playersID: { 'type': String, default: '' },
       enigme: {
         ipMdp: {
           finish: { 'type': Boolean, default: false },

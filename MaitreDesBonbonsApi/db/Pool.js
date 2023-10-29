@@ -6,6 +6,9 @@ const poolSchema = new mongoose.Schema({
     type: Map,
     of: {
       userId: String,
+      socketEmitUser: String,
+      avatar: String,
+      name: String,
     },
   },
 });

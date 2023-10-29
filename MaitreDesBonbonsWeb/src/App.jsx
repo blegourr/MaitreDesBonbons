@@ -12,13 +12,11 @@ import Dashboard from './compoments/pages/dashboard/Dashboards';
 function App() {
   const [dataPool, setDataPool] = useState(null);
   const [dataParty, setDataParty] = useState(null);
-  const [poolId, setPoolId] = useState(null)
 
   return (
     <BrowserRouter>
 
       <WebSocketProvider
-        onPoolId={setPoolId}
         onDataPool={setDataPool}
         onDataParty={setDataParty}
       >
@@ -32,7 +30,6 @@ function App() {
                   dataPool={dataPool}
                   onDataPool={setDataPool}
                   sendMessage={sendMessage}
-                  poolId={poolId}
                   dataParty={dataParty}
                 />
               }
@@ -45,7 +42,6 @@ function App() {
                   dataPool={dataPool}
                   onDataPool={setDataPool}
                   sendMessage={sendMessage}
-                  poolId={poolId}
                   dataParty={dataParty}
                 />
               }

@@ -20,19 +20,19 @@ function getCookie(name) {
 }
 
 function getAvatarURl(dataPool, UserID) {
-
+  console.log(dataPool, 'datapool');
   // définie la pp à notre utilisateur
-  const dataPoolUser = dataPool.filter(user => user.id === UserID)
-  if (!dataPoolUser[0]) {
+  const dataPoolUser = dataPool?.users[UserID]
+  if (!dataPoolUser) {
     return console.error(`dataPoolUser not found`)
   }
 
   // récupère l'avatar de l'utilisateur
-  const avatarURl = `https://cdn.discordapp.com/avatars/${UserID}/${dataPoolUser[0].avatar}.webp?size=512`
+  const avatarURl = `https://cdn.discordapp.com/avatars/${UserID}/${dataPoolUser.avatar}.webp?size=512`
   return avatarURl
 }
 
-function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
+function ChoicePersonage({ dataPool, sendMessage, dataParty }) {
   const navigate = useNavigate();
 
   const ZeroSelection = useRef()
@@ -100,7 +100,6 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
         }
 
 
-
         if (dataParty.settings.start) {
           navigate('/Dashboard')
         }
@@ -130,7 +129,13 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
     ZeroSelection.current.classList.toggle('active');
 
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
-    sendMessage(JSON.stringify({ command: 'ModifDBParty', poolId: poolId, dataBaseModified: JSON.stringify(dataParty), cookies: document.cookie }));
+    sendMessage({
+      type: 'ModifDBParty',
+      message: {
+        poolId: dataParty.partyID,
+        json: dataParty
+      }
+    });
   };
 
   const handleButtonClickFbi = () => {
@@ -156,7 +161,13 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
     FBIoSelection.current.classList.toggle('active');
 
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
-    sendMessage(JSON.stringify({ command: 'ModifDBParty', poolId: poolId, dataBaseModified: JSON.stringify(dataParty), cookies: document.cookie }));
+    sendMessage({
+      type: 'ModifDBParty',
+      message: {
+        poolId: dataParty.partyID,
+        json: dataParty
+      }
+    });
   };
 
   const handleButtonClickBonbon = () => {
@@ -182,13 +193,22 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
     BonbonSelection.current.classList.toggle('active');
 
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
-    sendMessage(JSON.stringify({ command: 'ModifDBParty', poolId: poolId, dataBaseModified: JSON.stringify(dataParty), cookies: document.cookie }));
+    sendMessage({
+      type: 'ModifDBParty',
+      message: {
+        poolId: dataParty.partyID,
+        json: dataParty
+      }
+    });
   };
 
   const handleButtonClickStartGame = () => {
     // envoyer le début de la partie au players
     // vérifie si les 3 utilisateurs sont bien présents
-    sendMessage(JSON.stringify({ command: 'StartGame', poolId: poolId, message: `StartGame`, cookies: document.cookie }));
+    sendMessage({
+      type: 'StartGame',
+      message:  dataParty.partyID   
+    })
   }
 
 
@@ -254,7 +274,6 @@ function ChoicePersonage({ dataPool, sendMessage, poolId, dataParty }) {
 ChoicePersonage.propTypes = {
   dataPool: PropTypes.any, // Changez le type en fonction de ce que vous attendez pour dataPool
   sendMessage: PropTypes.func.isRequired,
-  poolId: PropTypes.string,
   dataParty: PropTypes.object.isRequired,
 };
 

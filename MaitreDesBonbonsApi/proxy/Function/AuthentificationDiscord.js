@@ -122,13 +122,13 @@ const authDiscordAcount = async (ctx) => {
   if (!UserFound) {
     FunctionDBModificationUser.createUser(user.id, {
       name: user.global_name,
-      avatar: user.avatar
+      avatar: user.avatar,
     })
   }
 
   FunctionDBModificationUser.updateUserByUserID(user.id, {
     name: user.global_name,
-    avatar: user.avatar
+    avatar: user.avatar,
   })
 
   // génère les cookies pour une prochaine authentification
