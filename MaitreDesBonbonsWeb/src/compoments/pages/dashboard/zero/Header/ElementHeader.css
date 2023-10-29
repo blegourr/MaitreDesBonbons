@@ -1,0 +1,9 @@
+.ZeroElementNavigator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #5c9c64a6;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  padding: 0 0.5rem;
+}

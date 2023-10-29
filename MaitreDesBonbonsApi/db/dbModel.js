@@ -36,10 +36,12 @@ const party = mongoose.Schema({
       }
     },
     software: {
-      DDOS: { 'type': Boolean, default: false },
-      webVulnerabilityScanner: { 'type': Boolean, default: false },
-      decryptFile: { 'type': Boolean, default: false },
-      webLookHtmlStructure: { 'type': Boolean, default: false },
+      zero: {
+        DDOS: { 'type': Boolean, default: false },
+        webVulnerabilityScanner: { 'type': Boolean, default: false },
+        decryptFile: { 'type': Boolean, default: false },
+        webLookHtmlStructure: { 'type': Boolean, default: false },
+      },
     },
     attackNow: [
       // liste des attaque en cours
