@@ -7,6 +7,8 @@ function Zero({dataParty, selectSoftware, onSetSelectSoftware, ZeroContainerElem
   let software = dataParty.software.zero
   // rajoute les software qui sont utilisable tous le long de la partie
   software.navigator = true
+  software.powershell = true
+  software.explicationPersonnage = true
 
   return (
     <div className='ZeroElementNavigator'>

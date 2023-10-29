@@ -1,65 +1,35 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import ZeroUn from '../../../assets/perso/zero/zeroppun.webp'
 import './zero.css'
 
 // importations des différents element
 import Headers from './Header/ElementHeader'
-import { useEffect, useState } from 'react';
+import ExplicationPersonnage from '../../personnage/zero/ExplicationPersonnage/explicationPersonnage'
 
-function Zero({dataPool, sendMessage, poolId, dataParty }) {
+
+function Zero({ dataPool, sendMessage, poolId, dataParty }) {
   const [selectSoftware, setSelectSoftware] = useState({
-    ZeroContainerElementSoftwareUn: '',
-    ZeroContainerElementSoftwareDeux: '',
-    ZeroContainerElementSoftwareTrois: '',
-    ZeroContainerElementSoftwareQuatre: '',
+    ZeroContainerElementSoftware1: 'explicationPersonnage',
+    ZeroContainerElementSoftware2: 'explicationPersonnage',
+    ZeroContainerElementSoftware3: 'explicationPersonnage',
+    ZeroContainerElementSoftware4: 'explicationPersonnage',
   })
-
-  useEffect(() => {
-
-
-
-
-  }, [selectSoftware])
 
   return (
     <div className='Zero'>
       <div className="container">
-        <div className="Element">
-          <Headers
-            dataParty={dataParty}
-            onSetSelectSoftware={setSelectSoftware}
-            selectSoftware={selectSoftware}
-            ZeroContainerElementSoftwareIndex='ZeroContainerElementSoftwareUn'
-          />
-
-        </div>
-        <div className="Element">
-          <Headers
-            dataParty={dataParty}
-            onSetSelectSoftware={setSelectSoftware}
-            selectSoftware={selectSoftware}
-            ZeroContainerElementSoftwareIndex='ZeroContainerElementSoftwareDeux'
-          />
-
-        </div>
-        <div className="Element">
-          <Headers
-            dataParty={dataParty}
-            onSetSelectSoftware={setSelectSoftware}
-            selectSoftware={selectSoftware}
-            ZeroContainerElementSoftwareIndex='ZeroContainerElementSoftwareTrois'
-          />
-
-        </div>
-        <div className="Element">
-          <Headers
-            dataParty={dataParty}
-            onSetSelectSoftware={setSelectSoftware}
-            selectSoftware={selectSoftware}
-            ZeroContainerElementSoftwareIndex='ZeroContainerElementSoftwareQuatre'
-          />
-
-        </div>
+        {[1, 2, 3, 4].map((index) => (
+          <div className="Element" key={index}>
+            <Headers
+              dataParty={dataParty}
+              onSetSelectSoftware={setSelectSoftware}
+              selectSoftware={selectSoftware}
+              ZeroContainerElementSoftwareIndex={`ZeroContainerElementSoftware${index}`}
+            />
+            {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'explicationPersonnage' && <ExplicationPersonnage />}
+          </div>
+        ))}
       </div>
       <div className="background">
         <div className="screen">

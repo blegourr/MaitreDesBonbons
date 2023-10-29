@@ -20,7 +20,8 @@ function Zero({ software, onSetSelectSoftware, ZeroContainerElementSoftwareIndex
       <select 
         name="ZeroElementHeadersSelectMenu" 
         id="ZeroElementHeadersSelectMenu"
-        onChange={handleChange}  
+        onChange={handleChange}
+        defaultValue='explicationPersonnage'
       >
         {Object.keys(SoftwareAvaible).map(key => (
           <option key={key} value={key}>
