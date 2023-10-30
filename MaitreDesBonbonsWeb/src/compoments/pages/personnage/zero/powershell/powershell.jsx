@@ -13,11 +13,13 @@ function Powershell({ sendMessage, dataParty }) {
   const handleInput = async (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const userCommand = inputCommand;
+      const userCommand = inputCommand.trim();
       // Vérifiez si la commande est "cls" ou "clear" et exécutez-la côté client
       if (userCommand.toLowerCase() === 'cls' || userCommand.toLowerCase() === 'clear') {
         // Effacez la liste des commandes exécutées
         setCommandesExecuted([]);
+      } else if (!userCommand) {
+        setCommandesExecuted([...commandesExecuted, { command: '', response: '' }]);
       } else {
         const commandId = Date.now()
 

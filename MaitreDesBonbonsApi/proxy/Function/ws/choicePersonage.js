@@ -41,6 +41,18 @@ module.exports = async ({ userId, partyID, personageSelec, eventEmitter }) => {
   if (party.players[personageSelec].playersID) {
     party.players[personageSelec].playersID = ''
   } else {
+    if (party.players.maitreBonBon.playersID === userId) {
+      party.players.maitreBonBon.playersID = ''
+    }
+
+    if (party.players.agentFbi.playersID === userId) {
+      party.players.agentFbi.playersID = ''
+    }
+
+    if (party.players.zero.playersID === userId) {
+      party.players.zero.playersID = ''
+    }
+
     party.players[personageSelec].playersID = userId
   }
 

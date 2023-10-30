@@ -5,6 +5,7 @@ const sendMessageUser = require('./sendMessageUser');
 const ping = require('./commandePowershell/ping');
 const time = require('./commandePowershell/time');
 const date = require('./commandePowershell/date');
+const help = require('./commandePowershell/help');
 
 /**----------------------------------------------------
  *           Création des fonctions
@@ -55,8 +56,8 @@ function parseCommandString(commandString) {
   // },
   ping: {
     help: {
-      global: 'Ping un nom de dommain',
-      thisCommand: '',
+      global: 'Ping un nom de domaine',
+      thisCommand: 'Ping un nom de domaine\nOptions :\n-D     Le nom de domaine que vous voulez cibler',
     },
     params: {
       d: {
@@ -73,8 +74,8 @@ function parseCommandString(commandString) {
   // },
   help: {
     help: {
-      global: '',
-      thisCommand: ''
+      global: 'Help fournit des informations d\'aide sur les commandes de zero',
+      thisCommand: 'Help fournit des informations d\'aide sur les commandes de zero\nOptions :\n-C     La commande que vous voulez sélectionner'
     },
     params: {
       c: {
@@ -111,7 +112,7 @@ module.exports = async ({ userId, command, eventEmitter, partyID }) => {
   if (!userId || !command || !eventEmitter || !partyID) {
     return console.error(`commandePowershell -> userID or command or eventEmitter or partyID is undefined`);
   }
-
+  console.log(command);
   // récupère la db  
   let party = await FunctionDBParty.getpartyBypartyID(partyID)
 
@@ -191,7 +192,9 @@ module.exports = async ({ userId, command, eventEmitter, partyID }) => {
     if (command.commandName.toLowerCase() == 'date') {
       date({ userId, eventEmitter, command })
     }
-
+    if (command.commandName.toLowerCase() == 'help') {
+      help({ userId, eventEmitter, providedParams, command, commandZero })
+    }
   
   }
 }
