@@ -12,6 +12,7 @@ const modificationDbParty = require('./Function/ws/modificationDbParty')
 const EventEmitter = require('events');
 const startGame = require('./Function/ws/startGame');
 const ChoicePersonage = require('./Function/ws/ChoicePersonage');
+const commandePowershell = require('./Function/ws/commandePowershell');
 /**----------------------------------------------------
  *              création config
 *-----------------------------------------------------
@@ -87,8 +88,8 @@ const start = () => {
       })
     });
 
+    // modifie la db et renvoie les modification à tous les utilisateurs
     socket.on('ChoicePersonage', (data) => {
-      // modifie la db et renvoie les modification à tous les utilisateurs
       ChoicePersonage({
         userId: user.id,
         partyID: data.partyID,
@@ -97,16 +98,26 @@ const start = () => {
       })
     });
 
-
-
+    // Commence la partie
     socket.on('StartGame', (data) => {
-      // Commence la partie
       startGame({
         userId: user.id,
         partyID: data,
         eventEmitter: eventEmitter,
       })
     });
+
+
+    // renvoie la réponse des commande exécuter par notre personnage
+    socket.on('commandPowershell', (data) => {
+      commandePowershell({
+        userId: user.id,
+        command: data.command,
+        partyID: data.partyID,
+        eventEmitter: eventEmitter,
+      })
+    });
+
 
     socket.on('disconnect', () => {
       console.log('Un utilisateur s\'est déconnecté.');

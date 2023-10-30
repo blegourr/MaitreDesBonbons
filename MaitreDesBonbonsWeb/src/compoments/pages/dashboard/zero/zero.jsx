@@ -6,6 +6,7 @@ import './zero.css'
 // importations des différents element
 import Headers from './Header/ElementHeader'
 import ExplicationPersonnage from '../../personnage/zero/ExplicationPersonnage/explicationPersonnage'
+import Powershell from '../../personnage/zero/powershell/powershell'
 
 
 function Zero({ dataPool, sendMessage, dataParty }) {
@@ -28,6 +29,7 @@ function Zero({ dataPool, sendMessage, dataParty }) {
               ZeroContainerElementSoftwareIndex={`ZeroContainerElementSoftware${index}`}
             />
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'explicationPersonnage' && <ExplicationPersonnage />}
+            {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'powershell' && <Powershell sendMessage={sendMessage} dataParty={dataParty}/>}
           </div>
         ))}
       </div>

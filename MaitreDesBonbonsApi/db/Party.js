@@ -5,33 +5,12 @@ const Party = mongoose.Schema({
   players: {
     maitreBonBon: {
       playersID: { 'type': String, default: '' },
-
     },
     agentFbi: {
       playersID: { 'type': String, default: '' },
-
     },
     zero: {
       playersID: { 'type': String, default: '' },
-      enigme: {
-        ipMdp: {
-          finish: { 'type': Boolean, default: false },
-          ip: { 'type': String },   //générer aléatoirement mes en suivant la base de 192.168.X.X (oui c'est un ip local)
-          mdp: { 'type': String }, ///générer aléatoirement
-        },
-        fireWall: {
-          finish: { 'type': Boolean, default: false },
-          directoryListing: { 'type': String, default: '/wp-content/uploads' }, // définie l'url à rentrer pour la faille
-          SQLInjection: { 'type': String, default: `" OR 1 = 1 -- -` } //définir le code sql à rentrer
-        },
-        fileEncrypted: {
-          finish: { 'type': Boolean, default: false },
-          mdp: { 'type': String }, //générer aléatoirement
-        },
-        coordinate: {
-          finish: { 'type': Boolean, default: false },
-        }
-      }
     }
   },
   software: {
@@ -51,6 +30,15 @@ const Party = mongoose.Schema({
   },
   aide: {
     // liste des aide qui sont donée automatiquement (aide donée automatiquement après qu'il soit rester un certains moment sur une égnimes) temps à def par égnime
+    zero: {
+
+    }, 
+    maitreBonBon: {
+
+    },
+    agentFbi: {
+      
+    }
   }
 })
 

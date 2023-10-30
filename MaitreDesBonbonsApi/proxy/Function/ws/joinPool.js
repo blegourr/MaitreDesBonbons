@@ -1,6 +1,7 @@
 const FucntionDbPool = require('../../../db/Fucntion/Pool')
 const FunctionDBParty = require('../../../db/Fucntion/Party')
 const FunctionDbUser = require('../../../db/Fucntion/User')
+const FunctionDBPartyAdmin = require('../../../db/Fucntion/PartyAdmin')
 const sendMessagePool = require('./sendMessagePool')
 
 /**
@@ -26,6 +27,22 @@ function generateRandomPassword(length) {
     password += charset.charAt(randomIndex);
   }
   return password;
+}
+
+// Fonction pour générer un nom de domaine aléatoire
+function generateDomainName() {
+  const extensions = ['.com', '.fr', '.org', '.io', '.eu', '.net'];
+  
+  // Génère une partie aléatoire pour le nom de domaine
+  const part = Math.random().toString(36).substr(2, 3);
+  
+  // Sélectionne une extension de manière aléatoire parmi la liste donnée
+  const extension = extensions[Math.floor(Math.random() * extensions.length)];
+  
+  // Combine la partie avec l'extension pour former le nom de domaine complet
+  const domainName = `${part}${extension}`;
+  
+  return domainName;
 }
 
 /**
@@ -65,11 +82,35 @@ module.exports = async ({ userId, socketEmitUser, eventEmitter }) => {
     FucntionDbPool.createPool(Date.now(), initialUsers).then((newPool) => {
       // console.log('Piscine créée avec succès :', newPool);
       // crée une partie avec le même Id
-      FunctionDBParty.createparty(newPool.poolID).then((newPool) => {
+      FunctionDBParty.createparty(newPool.poolID).then(() => {
         // console.log('Party créée avec succès :', newPool);
-        return resolve();
+
+        // crée la zone avec les réponse
+        FunctionDBPartyAdmin.createpartyAdmin(newPool.poolID, {
+          partyID: newPool.poolID,
+          players: {
+            maitreBonBon: {},
+            agentFbi: {},
+            zero: {
+              ipMdp: {
+                ip: generateRandomIPAddress(),   //générer aléatoirement mes en suivant la base de 192.168.X.X (oui c'est un ip local)
+                mdp: generateRandomPassword(64), ///générer aléatoirement
+                domaine: generateDomainName(),
+                domaineToIp:  {},
+              },
+              fileEncrypted: {
+                mdp: generateRandomPassword(64), //générer aléatoirement
+              },
+            }
+          },
+        }).then(() => {
+          return resolve();
+        }).catch((error) => {
+          console.error('Erreur lors de la création de la partyAdmin :', error);
+          return reject();
+        });
       }).catch((error) => {
-        console.error('Erreur lors de la création de la piscine :', error);
+        console.error('Erreur lors de la création de la party :', error);
         return reject();
       });
     }).catch((error) => {

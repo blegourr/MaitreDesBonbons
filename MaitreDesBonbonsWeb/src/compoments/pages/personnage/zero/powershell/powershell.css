@@ -1,0 +1,67 @@
+.ZeroPowershell {
+  width: 100%;
+  height: calc(100% - 2rem);
+  bottom: 0;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ZeroPowershell .background {
+  width: 100%;
+  height: 100%;
+  background-color: #000000cc;
+}
+
+.ZeroPowershell .containerCommand::-webkit-scrollbar {
+  width: 0px;
+}
+
+.ZeroPowershell .containerCommand::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0);
+}
+
+.ZeroPowershell .containerCommand {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow-y: scroll;
+}
+
+.ZeroPowershell .containerInput {
+  height: 1rem;
+  width: 100%;
+  height: max-content;
+  display: flex;
+  align-items: flex-start;
+  justify-content: left;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+
+.ZeroPowershell .containerInput p {
+  color: #16c60c;
+}
+
+.ZeroPowershell .containerInput textarea {
+  border: unset;
+  background: none;
+  color: #16c60c;
+  margin-left: 0.5rem;
+  height: auto;
+  width: 100%;
+  font-size: 1rem;
+  padding-top: 0.2rem;
+  resize: none;
+}
+
+.ZeroPowershell textarea:focus {
+  outline: none; /* Supprime le cadre de focus */
+}
+
+.ZeroPowershell .commandExecuted {
+  color: #16c60c;
+}

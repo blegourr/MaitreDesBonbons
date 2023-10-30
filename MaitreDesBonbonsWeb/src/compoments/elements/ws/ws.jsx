@@ -23,6 +23,24 @@ const WebSocketProvider = ({onDataPool, onDataParty, children }) => {
       onDataParty(data)
     });
 
+    newSocket.on('commandPowershell', (data) => {
+      console.log('Message du serveur :', data, 'commandPowershell');
+      // Faites quelque chose avec les données reçues
+      const event = new CustomEvent(`commandResponse_${data.commandId}`, {
+        detail: {
+          commandId: data.commandId,
+          responseData: data.commandReturn,
+        },
+      });
+      
+      // Déclenchez l'événement personnalisé sur l'objet window
+      window.dispatchEvent(event);
+
+
+
+
+    });
+
 
     setSocket(newSocket);
 
