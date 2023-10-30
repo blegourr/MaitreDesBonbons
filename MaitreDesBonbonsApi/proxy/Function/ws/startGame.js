@@ -9,32 +9,41 @@ const sendMessagePool = require('./sendMessagePool')
  * @param {String} socketEmitUser
  * @param {any} eventEmitter
  */
-module.exports = async ({ userId, partyID , eventEmitter }) => {
+module.exports = async ({ userId, partyID, eventEmitter }) => {
   // vérification que les données nésésaire sont présente
   if (!userId || !partyID || !eventEmitter) {
-    return console.error(`joinPool -> userID or socketEmitUser or eventEmitter is undefined`);
+    return console.error(`startGame -> userID or partyID or eventEmitter is undefined`);
   }
 
   // récupère la db  
   let party = await FunctionDBParty.getpartyBypartyID(partyID)
 
+  // vérifie que l'utilisateur se trouve bien dans la pool
+  let poolId = await FucntionDbPool.isUserInAnyPool(userId)
+  if (poolId !== partyID) {
+    return console.error(`startGame -> l'utilisateur veut modifier une pool dans la qu'elle il n'y est pas`);
+  }
 
-  // vérifie si les utilisateurs bien leur tous sélectionner un personnage
-
-
+  //vérifie si les utilisateurs bien leur tous sélectionner un personnage
+  if (!party.players.zero.playersID || !party.players.agentFbi.playersID || !party.players.maitreBonBon.playersID) {
+    return console.error(`startGame -> impossible de lancer la partie, tous les personnages n'ont pas été sélectioné`);
+  }
 
   // démare la partie
   party.settings.start = true
 
   // modifie la db
-  const newParty = await FunctionDBParty.updatepartyBypartyID(partyID, party)
-
-  // crée un message revoyant la party
-  sendMessagePool({
-    poolId: partyID,
-    message: newParty,
-    eventEmitter: eventEmitter,
-    userId: userId,
-    event: 'ModifDBParty'
+  FunctionDBParty.updatepartyBypartyID(partyID, party).then(newParty => {
+    // crée un message revoyant la party
+    sendMessagePool({
+      poolId: partyID,
+      message: newParty,
+      eventEmitter: eventEmitter,
+      userId: userId,
+      event: 'ModifDBParty'
+    })
+  }).catch((e) => {
+    return console.error(`startGame -> une erreur c'est produite lors de la modification de la party\n\nerreur -> \n`, e);
   })
+
 }

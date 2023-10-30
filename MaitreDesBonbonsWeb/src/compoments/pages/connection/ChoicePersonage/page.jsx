@@ -130,10 +130,10 @@ function ChoicePersonage({ dataPool, sendMessage, dataParty }) {
 
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
     sendMessage({
-      type: 'ModifDBParty',
+      type: 'ChoicePersonage',
       message: {
-        poolId: dataParty.partyID,
-        json: dataParty
+        partyID: dataParty.partyID,
+        personageSelec: 'zero'
       }
     });
   };
@@ -162,10 +162,10 @@ function ChoicePersonage({ dataPool, sendMessage, dataParty }) {
 
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
     sendMessage({
-      type: 'ModifDBParty',
+      type: 'ChoicePersonage',
       message: {
-        poolId: dataParty.partyID,
-        json: dataParty
+        partyID: dataParty.partyID,
+        personageSelec: 'agentFbi'
       }
     });
   };
@@ -194,10 +194,10 @@ function ChoicePersonage({ dataPool, sendMessage, dataParty }) {
 
     // Vérifiez si la connexion WebSocket est ouverte avant d'envoyer un message
     sendMessage({
-      type: 'ModifDBParty',
+      type: 'ChoicePersonage',
       message: {
-        poolId: dataParty.partyID,
-        json: dataParty
+        partyID: dataParty.partyID,
+        personageSelec: 'maitreBonBon'
       }
     });
   };

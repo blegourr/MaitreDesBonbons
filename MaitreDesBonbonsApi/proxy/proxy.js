@@ -11,6 +11,7 @@ const joinPool = require('./Function/ws/joinPool')
 const modificationDbParty = require('./Function/ws/modificationDbParty')
 const EventEmitter = require('events');
 const startGame = require('./Function/ws/startGame');
+const ChoicePersonage = require('./Function/ws/ChoicePersonage');
 /**----------------------------------------------------
  *              création config
 *-----------------------------------------------------
@@ -46,7 +47,7 @@ const start = () => {
 
     // récupère les cookie
     const cookies = socket.handshake.headers.cookie;
-    
+
     // récupère l'access_token et vérifie le, récupère l'id 
     const access_token = cookieFunction.getCookieValue(cookies, 'access_token')
     if (!access_token) {
@@ -58,14 +59,12 @@ const start = () => {
 
     // crée un event permettant de recontacter l'utilisateur
     const socketEmitUser = `sendMessage_${user.id}`
-    eventEmitter.on(socketEmitUser, ({event, message}) => {
+    eventEmitter.on(socketEmitUser, ({ event, message }) => {
       if (!event || !message) {
         return console.error('error -> event or message are undefined', event, message)
       }
       socket.emit(event, message)
     });
-
-
 
     // faits rejoindre l'utilisateur une pool
     joinPool({
@@ -74,14 +73,31 @@ const start = () => {
       socketEmitUser: socketEmitUser
     })
 
+
+    /**----------------------------------------------------
+     *             Création des liseners
+     *-----------------------------------------------------
+     */
     socket.on('ModifDBParty', (data) => {
       // modifie la db et renvoie les modification à tous les utilisateurs
       modificationDbParty({
         userId: user.id,
-        dataBaseModified: data.json,
+        dataBaseModified: data,
         eventEmitter: eventEmitter,
       })
     });
+
+    socket.on('ChoicePersonage', (data) => {
+      // modifie la db et renvoie les modification à tous les utilisateurs
+      ChoicePersonage({
+        userId: user.id,
+        partyID: data.partyID,
+        personageSelec: data.personageSelec,
+        eventEmitter: eventEmitter,
+      })
+    });
+
+
 
     socket.on('StartGame', (data) => {
       // Commence la partie
@@ -142,9 +158,6 @@ const start = () => {
     console.log(`Serveur Koa démarré sur le port ${PORT}`);
   });
 }
-
-
-
 
 module.exports = {
   start,
