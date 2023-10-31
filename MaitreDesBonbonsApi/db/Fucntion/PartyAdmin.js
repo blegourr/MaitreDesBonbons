@@ -53,7 +53,7 @@ async function addDomains(partyID, domaine, ip) {
 
 
     // Ajoutez l'utilisateur à la piscine en utilisant la méthode set de la Map
-    partyAdmin.players.zero.ipMdp.domaineToIp.set(domaine, ip);
+    partyAdmin.players.zero.ip.domaineToIp.set(domaine, ip);
 
     // Enregistrez la piscine mise à jour dans la base de données
     return await partyAdmin.save();

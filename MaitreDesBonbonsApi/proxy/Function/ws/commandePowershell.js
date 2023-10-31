@@ -6,6 +6,7 @@ const ping = require('./commandePowershell/ping');
 const time = require('./commandePowershell/time');
 const date = require('./commandePowershell/date');
 const help = require('./commandePowershell/help');
+const metadate = require('./commandePowershell/metadate');
 
 /**----------------------------------------------------
  *           Création des fonctions
@@ -40,13 +41,17 @@ function parseCommandString(commandString) {
   //   },
   //   params: {},
   // },
-  // metadata: {
-  //   help: {
-  //   global: '',
-  //   thisCommand: ''
-  //   },
-  //   params: {},
-  // },
+  metadata: {
+    help: {
+    global: '',
+    thisCommand: ''
+    },
+    params: {
+      l: {
+        require: true
+        }
+    },
+  },
   ping: {
     help: {
       global: 'Ping un nom de domaine',
@@ -192,15 +197,17 @@ module.exports = async ({ userId, command, eventEmitter, partyID }) => {
     if (command.commandName.toLowerCase() === 'ping') {
       ping({ userId, eventEmitter, partyID, providedParams, command })
     }
-    if (command.commandName.toLowerCase() == 'time') {
+    if (command.commandName.toLowerCase() === 'time') {
       time({ userId, eventEmitter, command })
     }
-    if (command.commandName.toLowerCase() == 'date') {
+    if (command.commandName.toLowerCase() === 'date') {
       date({ userId, eventEmitter, command })
     }
-    if (command.commandName.toLowerCase() == 'help') {
+    if (command.commandName.toLowerCase() === 'help') {
       help({ userId, eventEmitter, providedParams, command, commandZero })
     }
-  
+    if (command.commandName.toLowerCase() === 'metadata') {
+      metadate({ userId, eventEmitter, partyID, providedParams, command })
+    }
   }
 }

@@ -34,7 +34,11 @@ function generateDomainName() {
   const extensions = ['.com', '.fr', '.org', '.io', '.eu', '.net'];
   
   // Génère une partie aléatoire pour le nom de domaine
-  const part = Math.random().toString(36).substr(2, 3);
+  const randomString = Math.random().toString(36).substr(2);
+  // Générer une sous-chaîne aléatoire de longueur comprise entre 3 et 8 caractères
+  const randomLength = 3 + Math.floor(Math.random() * (8 - 3 + 1));
+  const part = randomString.substr(0, randomLength);
+  // const part = Math.random().toString(36).substr(2, 3);  
   
   // Sélectionne une extension de manière aléatoire parmi la liste donnée
   const extension = extensions[Math.floor(Math.random() * extensions.length)];
@@ -44,6 +48,32 @@ function generateDomainName() {
   
   return domainName;
 }
+
+function generateRandomUrlForImage() {
+  const randomString = Math.random().toString(36).substring(2, 12); // Génère une chaîne aléatoire de 10 caractères
+  const extensions = ['.webp', '.png', '.jpeg'];
+  const randomExtension = extensions[Math.floor(Math.random() * extensions.length)];
+    return {
+      fileName: randomString,
+      fileUrl: randomURL,
+      fileExtension: randomExtension
+    };
+}
+
+function generateArrayWithRandomUrlForImage(number) {
+  
+
+
+  // /api/uploads/img/{randomImgFile}
+
+  // { //récupérer des images des enfants
+  //   fileName: { 'type': String },
+  //   filePath: { 'type': String },
+  //   fileUrl: { 'type': String },
+  // }
+}
+
+
 
 /**
  * création de la function permettant de join la pool
@@ -92,14 +122,31 @@ module.exports = async ({ userId, socketEmitUser, eventEmitter }) => {
             maitreBonBon: {},
             agentFbi: {},
             zero: {
-              ipMdp: {
-                ip: generateRandomIPAddress(),   //générer aléatoirement mes en suivant la base de 192.168.X.X (oui c'est un ip local)
-                mdp: generateRandomPassword(64), ///générer aléatoirement
-                domaine: generateDomainName(),
-                domaineToIp:  {},
+              ip: {
+                ip: generateRandomIPAddress(),  // générer aléatoirement mes en suivant la base de 192.168.X.X (oui c'est un ip local)
+                domaine: generateDomainName(), //  générer aléatoirement sous la forme x.x
+                domaineToIp: {},
               },
-              fileEncrypted: {
+              mdpOfsession: {
                 mdp: generateRandomPassword(64), //générer aléatoirement
+                // directoryListing: { 'type': String, default: '/wp-content/uploads' },
+                file: []
+              },
+              userOfSession: {
+                // SQLInjection: { 'type': String, default: `" OR 1 = 1 -- -` } //définir le code sql à rentrer parmis une list
+              },
+              fileOnSession: {
+                file: []
+              },
+              ddos: {},
+              mitm: {
+                token:  generateRandomPassword(128), //générer aléatoirement
+              },
+              metadata: {
+                mdp: generateRandomPassword(64), //générer aléatoirement
+              },
+              coordinate: {
+                // coordinate: { 'type': String }, //générer aléatoirement
               },
             }
           },

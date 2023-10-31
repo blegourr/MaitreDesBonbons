@@ -30,17 +30,17 @@ module.exports = async ({ userId, eventEmitter, partyID, providedParams, command
     const partyAdmin = await FunctionDBPartyAdmin.getpartyBypartyAdminID(partyID)
 
     let ip = ''
-    if (partyAdmin.players.zero.ipMdp.domaine === premierDomaine) {
-      ip = partyAdmin.players.zero.ipMdp.ip
+    if (partyAdmin.players.zero.ip.domaine === premierDomaine) {
+      ip = partyAdmin.players.zero.ip.ip
     } else {
       // vérifie si le nom de domaine à déjà été généré 
       const domaineregigster = premierDomaine.replace('.', '_')
 
-      if (partyAdmin.players.zero.ipMdp.domaineToIp.has(domaineregigster)) {
-        ip = partyAdmin.players.zero.ipMdp.domaineToIp.get(domaineregigster)
+      if (partyAdmin.players.zero.ip.domaineToIp.has(domaineregigster)) {
+        ip = partyAdmin.players.zero.ip.domaineToIp.get(domaineregigster)
       } else {
         ip = generateRandomIPAddress()
-        if (ip === partyAdmin.players.zero.ipMdp.ip) while (ip === partyAdmin.players.zero.ipMdp.ip) ip = generateRandomIPAddress()
+        if (ip === partyAdmin.players.zero.ip.ip) while (ip === partyAdmin.players.zero.ip.ip) ip = generateRandomIPAddress()
         // mettre a jour pour ajouter notre nom de dommaine avec cette ip
         await FunctionDBPartyAdmin.addDomains(partyID, domaineregigster, ip)
       }
