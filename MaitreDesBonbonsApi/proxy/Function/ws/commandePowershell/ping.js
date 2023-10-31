@@ -3,8 +3,7 @@ const FunctionDBPartyAdmin = require('../../../../db/Fucntion/PartyAdmin')
 
 
 
-// message à renvoyer
-let string = `Envoi d'une requête 'ping' sur {D} [{ipOfSite}] avec 32 octets de données :\nDélai d'attente de la demande dépassé.\nRéponse de {ipOfSite} : temps=32 ms\nRéponse de {ipOfSite} : temps=34 ms\nRéponse de {ipOfSite} : temps=32 ms\nStatistiques Ping pour {ipOfSite}:\nPaquets : envoyés = 4, reçus = 3, perdus = 1 (perte 25%),\nDurée approximative des boucles en millisecondes :\nMinimum = 32ms, Maximum = 34ms, Moyenne = 32ms`
+
 
 // Fonction pour générer une adresse IP locale aléatoire (192.168.X.X)
 function generateRandomIPAddress() {
@@ -17,6 +16,9 @@ function generateRandomIPAddress() {
 
 
 module.exports = async ({ userId, eventEmitter, partyID, providedParams, command }) => {
+  // message à renvoyer
+  let string = `Envoi d'une requête 'ping' sur {D} [{ipOfSite}] avec 32 octets de données :\nDélai d'attente de la demande dépassé.\nRéponse de {ipOfSite} : temps=32 ms\nRéponse de {ipOfSite} : temps=34 ms\nRéponse de {ipOfSite} : temps=32 ms\nStatistiques Ping pour {ipOfSite}:\nPaquets : envoyés = 4, reçus = 3, perdus = 1 (perte 25%),\nDurée approximative des boucles en millisecondes :\nMinimum = 32ms, Maximum = 34ms, Moyenne = 32ms`
+
   // Vérifie si on récupère bien un nom de domaine
   const regex = /(\b\w+\.\w+\b)/;
 
@@ -34,20 +36,20 @@ module.exports = async ({ userId, eventEmitter, partyID, providedParams, command
       // vérifie si le nom de domaine à déjà été généré 
       const domaineregigster = premierDomaine.replace('.', '_')
 
-      if (partyAdmin.players.zero.ipMdp.domaineToIp.get(domaineregigster)) {
+      if (partyAdmin.players.zero.ipMdp.domaineToIp.has(domaineregigster)) {
         ip = partyAdmin.players.zero.ipMdp.domaineToIp.get(domaineregigster)
       } else {
         ip = generateRandomIPAddress()
         if (ip === partyAdmin.players.zero.ipMdp.ip) while (ip === partyAdmin.players.zero.ipMdp.ip) ip = generateRandomIPAddress()
         // mettre a jour pour ajouter notre nom de dommaine avec cette ip
-        FunctionDBPartyAdmin.addDomains(partyID, domaineregigster, ip)
+        await FunctionDBPartyAdmin.addDomains(partyID, domaineregigster, ip)
       }
     }
 
     // simule un ping (remplace le {D} par le nom de domaine, et les {ipOfSite} par une id)
     string = string.replace('{D}', premierDomaine)
+
     let regex = new RegExp("{ipOfSite}", "g");
-    
     string = string.replace(regex, ip);
 
     return sendMessageUser({

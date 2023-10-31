@@ -40,14 +40,7 @@ function parseCommandString(commandString) {
   //   },
   //   params: {},
   // },
-  // scanneurwebfail: {
-  //   help: {
-  //   global: '',
-  //   thisCommand: ''
-  //   },
-  //   params: {},
-  // },
-  // scanneurwebstructure: {
+  // metadata: {
   //   help: {
   //   global: '',
   //   thisCommand: ''
@@ -66,6 +59,20 @@ function parseCommandString(commandString) {
     }, 
   },
   // bruteforce: {
+  //   help: {
+  //   global: '',
+  //   thisCommand: ''
+  //   },
+  //   params: {},
+  // },
+  // mitm: {
+  //   help: {
+  //   global: '',
+  //   thisCommand: ''
+  //   },
+  //   params: {},
+  // },
+  // urlfailshearch: {
   //   help: {
   //   global: '',
   //   thisCommand: ''
@@ -112,7 +119,6 @@ module.exports = async ({ userId, command, eventEmitter, partyID }) => {
   if (!userId || !command || !eventEmitter || !partyID) {
     return console.error(`commandePowershell -> userID or command or eventEmitter or partyID is undefined`);
   }
-  console.log(command);
   // récupère la db  
   let party = await FunctionDBParty.getpartyBypartyID(partyID)
 

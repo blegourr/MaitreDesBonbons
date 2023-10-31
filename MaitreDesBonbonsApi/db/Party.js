@@ -16,9 +16,9 @@ const Party = mongoose.Schema({
   software: {
     zero: {
       DDOS: { 'type': Boolean, default: false },
-      webVulnerabilityScanner: { 'type': Boolean, default: false },
-      decryptFile: { 'type': Boolean, default: false },
-      webLookHtmlStructure: { 'type': Boolean, default: false },
+      metadata: { 'type': Boolean, default: false },
+      MITM: { 'type': Boolean, default: false },
+      urlFailShearch: { 'type': Boolean, default: false },
     },
   },
   attackNow: [

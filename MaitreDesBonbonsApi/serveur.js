@@ -28,7 +28,7 @@ mongoose.connect(process.env.DATABASE_URI, mongOption).then(async () => {
 
 }).catch((e) => {
   //problème de connection db
-  console.log(`connection DB échoué raison: ${e}`)
+  console.error(`connection DB échoué raison: ${e}`)
 })
 
 process.on('exit', code => { console.log(`le processus s'est arrêter avec comme erreur: ${code}!`) })
