@@ -20,7 +20,7 @@ function generateRandomIPAddress() {
 
 // Fonction pour générer un mot de passe aléatoire avec des caractères spéciaux
 function generateRandomPassword(length) {
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
   let password = "";
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * charset.length);
@@ -55,13 +55,20 @@ function generateRandomUrlForImage() {
   const randomExtension = extensions[Math.floor(Math.random() * extensions.length)];
     return {
       fileName: randomString,
-      fileUrl: randomURL,
+      fileUrl: `/api/uploads/img/${randomString}${randomExtension}`,
       fileExtension: randomExtension
     };
 }
 
 function generateArrayWithRandomUrlForImage(number) {
-  
+  let array = []
+  for (let i = 0; i <= number; i++) {
+    array.push(generateRandomUrlForImage())
+  }
+
+  return array;
+  // rajouter la filePath pour quand on aurras les images
+
 
 
   // /api/uploads/img/{randomImgFile}
@@ -136,11 +143,11 @@ module.exports = async ({ userId, socketEmitUser, eventEmitter }) => {
                 // SQLInjection: { 'type': String, default: `" OR 1 = 1 -- -` } //définir le code sql à rentrer parmis une list
               },
               fileOnSession: {
-                file: []
+                file: generateArrayWithRandomUrlForImage(5)
               },
               ddos: {},
               mitm: {
-                token:  generateRandomPassword(128), //générer aléatoirement
+                token:  generateRandomPassword(64), //générer aléatoirement
               },
               metadata: {
                 mdp: generateRandomPassword(64), //générer aléatoirement

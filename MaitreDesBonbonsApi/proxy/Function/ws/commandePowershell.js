@@ -6,7 +6,7 @@ const ping = require('./commandePowershell/ping');
 const time = require('./commandePowershell/time');
 const date = require('./commandePowershell/date');
 const help = require('./commandePowershell/help');
-const metadate = require('./commandePowershell/metadate');
+const metadate = require('./commandePowershell/metadata');
 
 /**----------------------------------------------------
  *           Création des fonctions
@@ -59,7 +59,7 @@ function parseCommandString(commandString) {
     },
     params: {
       d: {
-      require: true
+        require: true
       }
     }, 
   },
