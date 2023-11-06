@@ -34,14 +34,18 @@ function parseCommandString(commandString) {
  */
 
  const commandZero = {
-  // ddos: {
-  //   help: {
-  //   global: '',
-  //   thisCommand: ''
-  //   },
-  //   params: {},
-  // },
-  metadata: {
+  ddos: {
+    help: {
+    global: '',
+    thisCommand: ''
+    },
+    params: {
+      i: {
+        require: true
+      }
+    },
+  },
+  metadata: {   // a finnir
     help: {
     global: '',
     thisCommand: ''
@@ -63,13 +67,6 @@ function parseCommandString(commandString) {
       }
     }, 
   },
-  // bruteforce: {
-  //   help: {
-  //   global: '',
-  //   thisCommand: ''
-  //   },
-  //   params: {},
-  // },
   // mitm: {
   //   help: {
   //   global: '',
