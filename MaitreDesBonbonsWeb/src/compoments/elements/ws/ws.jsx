@@ -6,7 +6,8 @@ const WebSocketProvider = ({onDataPool, onDataParty, children }) => {
 
   useEffect(() => {
     // Établir une connexion WebSocket avec le serveur socket.io
-    const newSocket = io('https://blegourr.fr');
+    const newSocket = io('http://localhost');
+    // const newSocket = io('https://blegourr.fr');
 
     newSocket.on('connect', () => {
       console.log('Connecté au serveur socket.io');

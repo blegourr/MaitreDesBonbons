@@ -45,9 +45,9 @@ function extractImageNameFromURL(url) {
 
 
 // function for verification if the token are egals
-function stringEgals(string1, string2) {
+async function stringEgals(string1, string2) {
   if (string1.length !== string2.length) {
-    return false
+    return false;
   }
 
   for (let i = 0; i < string1.length; i++) {
@@ -110,7 +110,6 @@ module.exports = async ({ userId, eventEmitter, partyID, providedParams, command
   const imageNameURL = extractImageNameFromURL(providedParams.l)
   // vérifier si l'img existe dans la db
   const isExistImageName = partyAdmin.players.zero.fileOnSession.file.filter(file => `${file.fileName}${file.fileExtension}` === imageNameURL)
-  console.log(isExistImageName);
 
   if (!providedParams.l.startsWith(partyAdmin.players.zero.ip.domaine) || !isExistImageName.length >= 1) {
     const messageError = `Erreur 404 : La ressource que vous recherchez est introuvable. Veuillez vérifier l'URL ou l'adresse que vous avez saisie et assurez-vous qu'elle est correcte. Si le problème persiste, contactez l'administrateur du site pour obtenir de l'aide.`
@@ -132,7 +131,6 @@ module.exports = async ({ userId, eventEmitter, partyID, providedParams, command
 
   // récupère les paramètres qui se trouve dans l'url
   const paramsURL = parseParamsFromURL(providedParams.l);
-  console.log(paramsURL);
   // vérifie si le accèss_token est présent et valide  
   if (paramsURL.access_token.length !== partyAdmin.players.zero.mitm.token.length) {
     const messageError = `Erreur 403 : Accès refusé. Vous n'avez pas l'autorisation nécessaire pour accéder à cette image. Veuillez contacter l'administrateur du site ou le propriétaire de la ressource pour obtenir les autorisations appropriées.`
@@ -152,7 +150,7 @@ module.exports = async ({ userId, eventEmitter, partyID, providedParams, command
   }
   
   //vérifie lettre par lettre si il sont égales
-  if (stringEgals(paramsURL.access_token.toLowerCase().trim(), partyAdmin.players.zero.mitm.token.toLowerCase().trim())) {
+  if (!stringEgals(paramsURL.access_token.toLowerCase().trim(), partyAdmin.players.zero.mitm.token.toLowerCase().trim())) {
     console.log(paramsURL.access_token.toLowerCase().trim(), partyAdmin.players.zero.mitm.token.toLowerCase().trim());
     const messageError = `Erreur 403 : Accès refusé. Vous n'avez pas l'autorisation nécessaire pour accéder à cette image. Veuillez contacter l'administrateur du site ou le propriétaire de la ressource pour obtenir les autorisations appropriées.`
 
@@ -172,8 +170,7 @@ module.exports = async ({ userId, eventEmitter, partyID, providedParams, command
   
   //à finnir
   // création du message à renvoyé
-  const messageToReturn = `${partyAdmin.players.zero.metadata.mdp}`
-
+  const messageToReturn = `Nous avons récupéré des données :\n - Largeur : 1920 pixels\n - Hauteur : 1080 pixels\n - Format : 16/9\n - Localisation : Inconnue\n - Appareil : Nikon D60\nㅤ\nAutres données sans correspondance :\n - Mot de passe : ${partyAdmin.players.zero.metadata.mdp}\n - Ratio : non`
 
   // renvoie des metadata
   return sendMessageUser({
@@ -188,13 +185,4 @@ module.exports = async ({ userId, eventEmitter, partyID, providedParams, command
   }).catch((e) => {
     return console.error(`commandePowershell -> une erreur c'est produite lors de l'envoie de la réponse\n\nerreur -> \n`, e);
   });
-
-
-
-
-
-
-
-
-
 }

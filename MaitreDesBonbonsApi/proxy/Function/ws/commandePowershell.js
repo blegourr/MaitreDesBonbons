@@ -45,7 +45,7 @@ function parseCommandString(commandString) {
       }
     },
   },
-  metadata: {   // a finnir
+  metadata: {
     help: {
     global: '',
     thisCommand: ''
