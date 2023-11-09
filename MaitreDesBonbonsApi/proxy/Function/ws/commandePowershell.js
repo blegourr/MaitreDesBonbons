@@ -7,6 +7,7 @@ const time = require('./commandePowershell/time');
 const date = require('./commandePowershell/date');
 const help = require('./commandePowershell/help');
 const metadate = require('./commandePowershell/metadata');
+const ddos = require('./commandePowershell/ddos');
 
 /**----------------------------------------------------
  *           Création des fonctions
@@ -26,6 +27,23 @@ function parseCommandString(commandString) {
   }
 
   return params;
+}
+
+
+async function ZeroPermissionCommand(commandString, party) {
+    if (commandString === 'ddos') {
+      return party.software.zero.DDOS
+    }
+    if (commandString === 'metadata') {
+      return party.software.zero.metadata
+    }
+    if (commandString === 'mitm') {
+      return party.software.zero.MITM
+    }
+    if (commandString === 'urlfailshearch') {
+      return party.software.zero.urlFailShearch
+    }
+  return true;
 }
 
 /**----------------------------------------------------
@@ -141,8 +159,8 @@ module.exports = async ({ userId, command, eventEmitter, partyID }) => {
 
   if (party.players.zero.playersID === userId) {
 
-    // vérifie si la commande existe
-    if (!commandZero[command.commandName.toLowerCase()]) {
+    // vérifie si la commande existe et si l'utilisateur accès a la commande 
+    if (!commandZero[command.commandName.toLowerCase()] || !await ZeroPermissionCommand(command.commandName.toLowerCase(), party)) {
       // crée le message d'erreur quand la commande n'existe pas
       const messageError = `'${command.commandName}' n'est pas reconnu en tant que commande interne \n ou externe, un programme exécutable ou un fichier de commandes.`
       // envoie le message d'erreur a l'utilisateur
@@ -205,6 +223,9 @@ module.exports = async ({ userId, command, eventEmitter, partyID }) => {
     }
     if (command.commandName.toLowerCase() === 'metadata') {
       metadate({ userId, eventEmitter, partyID, providedParams, command })
+    }
+    if (command.commandName.toLowerCase() === 'ddos') {
+      ddos({ userId, eventEmitter, partyID, providedParams, command })
     }
   }
 }
