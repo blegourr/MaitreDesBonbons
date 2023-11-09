@@ -1,0 +1,49 @@
+.ZeroDdos {
+  width: 100%;
+  height: calc(100% - 2rem);
+  overflow-y: scroll;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ZeroDdos .container {
+  width: 90%;
+  height: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.ZeroDdos .container span {
+  height: 1.5rem;
+}
+
+.ZeroDdos .container p {
+  margin: 0.5rem;
+}
+
+.ZeroDdos .container h1 {
+  margin-top: 2rem;
+}
+
+.ZeroDdos::-webkit-scrollbar {
+  width: 0px;
+}
+
+.ZeroDdos::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0);
+}
+
+.ZeroDdos code {
+  background: #000000a8;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+}

@@ -1,0 +1,43 @@
+.ZeroHelpPowershell {
+  width: 100%;
+  height: calc(100% - 2rem);
+  overflow-y: scroll;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ZeroHelpPowershell .container {
+  width: 90%;
+  height: max-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.ZeroHelpPowershell .container span {
+  height: 1.5rem;
+}
+
+.ZeroHelpPowershell .container p {
+  margin: 0.5rem;
+}
+
+.ZeroHelpPowershell .container h1 {
+  margin-top: 2rem;
+}
+
+.ZeroHelpPowershell::-webkit-scrollbar {
+  width: 0px;
+}
+
+.ZeroHelpPowershell::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0);
+}

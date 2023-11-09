@@ -7,14 +7,15 @@ import './zero.css'
 import Headers from './Header/ElementHeader'
 import ExplicationPersonnage from '../../personnage/zero/ExplicationPersonnage/explicationPersonnage'
 import Powershell from '../../personnage/zero/powershell/powershell'
-
+import HelpPowershell from '../../personnage/zero/helpPowershell/helpPowershell'
+import Ddos from '../../personnage/zero/ddos/ddos';
 
 function Zero({ dataPool, sendMessage, dataParty }) {
   const [selectSoftware, setSelectSoftware] = useState({
     ZeroContainerElementSoftware1: 'explicationPersonnage',
     ZeroContainerElementSoftware2: 'explicationPersonnage',
-    ZeroContainerElementSoftware3: 'explicationPersonnage',
-    ZeroContainerElementSoftware4: 'explicationPersonnage',
+    ZeroContainerElementSoftware3: 'helpPowershell',
+    ZeroContainerElementSoftware4: 'helpPowershell',
   })
 
   return (
@@ -29,7 +30,10 @@ function Zero({ dataPool, sendMessage, dataParty }) {
               ZeroContainerElementSoftwareIndex={`ZeroContainerElementSoftware${index}`}
             />
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'explicationPersonnage' && <ExplicationPersonnage />}
+            {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'helpPowershell' && <HelpPowershell />}
+            {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'DDOS' && <Ddos />}
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'powershell' && <Powershell sendMessage={sendMessage} dataParty={dataParty}/>}
+            
           </div>
         ))}
       </div>

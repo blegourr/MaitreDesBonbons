@@ -58,6 +58,9 @@ const start = () => {
     // vérifie si le token est valide
     const user = await AuthentificationDiscord.verifyToken(access_token)
 
+    if (!user) {
+      return console.error('error -> user Undefund')
+    }
     // crée un event permettant de recontacter l'utilisateur
     const socketEmitUser = `sendMessage_${user.id}`
     eventEmitter.on(socketEmitUser, ({ event, message }) => {

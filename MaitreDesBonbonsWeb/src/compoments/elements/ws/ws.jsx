@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';import { io } from 'socket.io-client';
+import PropTypes from 'prop-types';
+import { io } from 'socket.io-client';
 
 const WebSocketProvider = ({onDataPool, onDataParty, children }) => {
   const [socket, setSocket] = useState(null);

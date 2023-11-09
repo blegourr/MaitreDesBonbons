@@ -8,6 +8,7 @@ const date = require('./commandePowershell/date');
 const help = require('./commandePowershell/help');
 const metadate = require('./commandePowershell/metadata');
 const ddos = require('./commandePowershell/ddos');
+const mitm = require('./commandePowershell/mitm');
 
 /**----------------------------------------------------
  *           Création des fonctions
@@ -85,13 +86,17 @@ async function ZeroPermissionCommand(commandString, party) {
       }
     }, 
   },
-  // mitm: {
-  //   help: {
-  //   global: '',
-  //   thisCommand: ''
-  //   },
-  //   params: {},
-  // },
+  mitm: {
+    help: {
+    global: '',
+    thisCommand: ''
+    },
+    params: {
+      i: {
+        require: true
+      }
+    },
+  },
   // urlfailshearch: {
   //   help: {
   //   global: '',
@@ -226,6 +231,9 @@ module.exports = async ({ userId, command, eventEmitter, partyID }) => {
     }
     if (command.commandName.toLowerCase() === 'ddos') {
       ddos({ userId, eventEmitter, partyID, providedParams, command })
+    }
+    if (command.commandName.toLowerCase() === 'mitm') {
+      mitm({ userId, eventEmitter, partyID, providedParams, command })
     }
   }
 }
