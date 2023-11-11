@@ -9,8 +9,12 @@ import ExplicationPersonnage from '../../personnage/zero/ExplicationPersonnage/e
 import Powershell from '../../personnage/zero/powershell/powershell'
 import HelpPowershell from '../../personnage/zero/helpPowershell/helpPowershell'
 import Ddos from '../../personnage/zero/ddos/ddos';
+import Mitm from '../../personnage/zero/mitm/mitm';
+import Metadata from '../../personnage/zero/metadata/metadata'
 
-function Zero({ dataPool, sendMessage, dataParty }) {
+// function Zero({ dataPool, sendMessage, dataParty }) {
+function Zero({ sendMessage, dataParty }) {
+
   const [selectSoftware, setSelectSoftware] = useState({
     ZeroContainerElementSoftware1: 'explicationPersonnage',
     ZeroContainerElementSoftware2: 'explicationPersonnage',
@@ -32,6 +36,8 @@ function Zero({ dataPool, sendMessage, dataParty }) {
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'explicationPersonnage' && <ExplicationPersonnage />}
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'helpPowershell' && <HelpPowershell />}
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'DDOS' && <Ddos />}
+            {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'MITM' && <Mitm />}
+            {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'metadata' && <Metadata />}
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'powershell' && <Powershell sendMessage={sendMessage} dataParty={dataParty}/>}
             
           </div>
@@ -48,7 +54,7 @@ function Zero({ dataPool, sendMessage, dataParty }) {
 }
 
 Zero.propTypes = {
-  dataPool: PropTypes.any, // Changez le type en fonction de ce que vous attendez pour dataPool
+  dataPool: PropTypes.any,
   sendMessage: PropTypes.func.isRequired,
   dataParty: PropTypes.object.isRequired,
 };

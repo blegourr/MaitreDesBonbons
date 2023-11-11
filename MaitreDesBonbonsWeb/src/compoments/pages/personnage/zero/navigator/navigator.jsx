@@ -1,17 +1,27 @@
 import PropTypes from 'prop-types';
 import './navigator.css'
 
-function Zero({dataPool, sendMessage, poolId, dataParty }) {
+// import header
+import Header from './header/header'
+
+// import page
+
+
+function Zero({ sendMessage, poolId, dataParty }) {
 
 
   return (
     <div className='Navigator'>
+      {/* header */}
+      <Header sendMessage={sendMessage} poolId={poolId} dataParty={dataParty} />
+
+      {/* page */}
+
     </div>
   );
 }
 
 Zero.propTypes = {
-  dataPool: PropTypes.any, // Changez le type en fonction de ce que vous attendez pour dataPool
   sendMessage: PropTypes.func.isRequired,
   poolId: PropTypes.string,
   dataParty: PropTypes.object.isRequired,
