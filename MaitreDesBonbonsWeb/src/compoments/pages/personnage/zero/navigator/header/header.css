@@ -1,0 +1,38 @@
+.navigatorHeader {
+  width: 100%;
+  height: 2rem;
+  background: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navigatorHeader .recharge {
+  width: 2rem;
+  background: blue;
+  height: 100%;
+}
+
+.navigatorHeader .url {
+  width: calc(100% - 2rem);
+  background: #53ff00;
+  height: 100%;
+  display: flex;
+  border-radius: 2rem;
+}
+
+.navigatorHeader .security {
+  width: 2rem;
+  background: #ff004465;
+  height: 100%;
+  border-bottom-left-radius: 2rem;
+  border-top-left-radius: 2rem;
+}
+
+.navigatorHeader .link {
+  width: calc(100% - 2rem);
+  background: #ffd90059;
+  height: 100%;
+  border-top-right-radius: 2rem;
+  border-bottom-right-radius: 2rem;
+}

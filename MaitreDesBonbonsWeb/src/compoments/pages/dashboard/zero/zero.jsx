@@ -11,6 +11,7 @@ import HelpPowershell from '../../personnage/zero/helpPowershell/helpPowershell'
 import Ddos from '../../personnage/zero/ddos/ddos';
 import Mitm from '../../personnage/zero/mitm/mitm';
 import Metadata from '../../personnage/zero/metadata/metadata'
+import Navigator from '../../personnage/zero/navigator/navigator'
 
 // function Zero({ dataPool, sendMessage, dataParty }) {
 function Zero({ sendMessage, dataParty }) {
@@ -18,8 +19,8 @@ function Zero({ sendMessage, dataParty }) {
   const [selectSoftware, setSelectSoftware] = useState({
     ZeroContainerElementSoftware1: 'explicationPersonnage',
     ZeroContainerElementSoftware2: 'explicationPersonnage',
-    ZeroContainerElementSoftware3: 'helpPowershell',
-    ZeroContainerElementSoftware4: 'helpPowershell',
+    ZeroContainerElementSoftware3: 'explicationPersonnage',
+    ZeroContainerElementSoftware4: 'explicationPersonnage',
   })
 
   return (
@@ -39,6 +40,7 @@ function Zero({ sendMessage, dataParty }) {
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'MITM' && <Mitm />}
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'metadata' && <Metadata />}
             {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'powershell' && <Powershell sendMessage={sendMessage} dataParty={dataParty}/>}
+            {selectSoftware[`ZeroContainerElementSoftware${index}`] === 'navigator' && <Navigator sendMessage={sendMessage} dataParty={dataParty}/>}
             
           </div>
         ))}
