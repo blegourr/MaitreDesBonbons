@@ -39,6 +39,14 @@ const WebSocketProvider = ({onDataPool, onDataParty, children }) => {
       window.dispatchEvent(event);
     });
 
+    newSocket.on('urlRecherche', (data) => {
+      console.log('Message du serveur :', data, 'urlRecherche');
+      // Faites quelque chose avec les données reçues
+      const event = new CustomEvent(`urlRecherche_${data.urlId}`, data);
+      
+      // Déclenchez l'événement personnalisé sur l'objet window
+      window.dispatchEvent(event);
+    });
 
     setSocket(newSocket);
 

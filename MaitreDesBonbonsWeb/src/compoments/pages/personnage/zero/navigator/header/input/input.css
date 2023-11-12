@@ -1,0 +1,15 @@
+.navigatorHeaderInput {
+  border: unset;
+  background: none;
+  color: #ffffff;
+  margin-left: 0.5rem;
+  height: 2rem;
+  width: calc(100% - 1.2rem);
+  font-size: 1rem;
+  padding-top: 0.2rem;
+  resize: none;
+}
+
+.navigatorHeaderInput:focus {
+  outline: none; /* Supprime le cadre de focus */
+}

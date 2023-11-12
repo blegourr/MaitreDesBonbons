@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import './navigator.css'
 
@@ -7,13 +8,21 @@ import Header from './header/header'
 // import page
 
 
-function Zero({ sendMessage, poolId, dataParty }) {
+function Zero({ sendMessage, dataParty }) {
+  const [urlInfo, setUrlInfo] = useState({
+    security: true,
+    valide: false,
+    present: false,
+    page: '404',
+    url: '',
+  })
+
 
 
   return (
     <div className='Navigator'>
       {/* header */}
-      <Header sendMessage={sendMessage} poolId={poolId} dataParty={dataParty} />
+      <Header urlInfo={urlInfo} setUrlInfo={setUrlInfo} sendMessage={sendMessage} dataParty={dataParty}/>
 
       {/* page */}
 

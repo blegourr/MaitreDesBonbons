@@ -13,6 +13,7 @@ const EventEmitter = require('events');
 const startGame = require('./Function/ws/startGame');
 const ChoicePersonage = require('./Function/ws/ChoicePersonage');
 const commandePowershell = require('./Function/ws/commandePowershell');
+const urlRecherche = require('./Function/ws/urlRecherche');
 /**----------------------------------------------------
  *              création config
 *-----------------------------------------------------
@@ -111,13 +112,23 @@ const start = () => {
     });
 
 
-    // renvoie la réponse des commande exécuter par notre personnage
+    // renvoie la réponse des commandes exécuter par notre personnage
     socket.on('commandPowershell', (data) => {
       commandePowershell({
         userId: user.id,
         command: data.command,
         partyID: data.partyID,
         eventEmitter: eventEmitter,
+      })
+    });
+
+    // renvoie la réponse des demandes de page demander par notre personnage
+    socket.on('urlRecherche', (data) => {
+      urlRecherche({
+        userId: user.id,
+        urlObject: data.url,
+        partyID: data.partyID,
+        eventEmitter: eventEmitter
       })
     });
 
