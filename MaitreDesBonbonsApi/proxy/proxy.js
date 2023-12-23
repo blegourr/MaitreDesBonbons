@@ -1,7 +1,9 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const { Server } = require("socket.io");
-const http = require('http');
+// const http = require('http');
+const https = require('https');
+const { default: enforceHttps } = require('koa-sslify');
 const serve = require('koa-static');
 const path = require('path');
 const fs = require('fs');
@@ -14,6 +16,7 @@ const startGame = require('./Function/ws/startGame');
 const ChoicePersonage = require('./Function/ws/ChoicePersonage');
 const commandePowershell = require('./Function/ws/commandePowershell');
 const urlRecherche = require('./Function/ws/urlRecherche');
+
 /**----------------------------------------------------
  *              création config
 *-----------------------------------------------------
@@ -30,6 +33,11 @@ const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_CALLBACK_URL;
 
+let options = {
+  key: fs.readFileSync(path.join(__dirname, '../ssl/private.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '../ssl/public.pem'))
+}
+
 /**----------------------------------------------------
  *                     CODE
  *-----------------------------------------------------
@@ -41,8 +49,8 @@ const start = () => {
    *-----------------------------------------------------
    */
   // Configuration de Socket.io
-  const server = http.createServer(app.callback());
-  const io = new Server(server);
+  const serverSocket = https.createServer(options, app.callback());
+  const io = new Server(serverSocket);
 
   io.on('connection', async (socket) => {
     console.log('Un utilisateur s\'est connecté.');
@@ -151,17 +159,17 @@ const start = () => {
 
 
   // route permettant de distribuer la page web
-  router.get(/^(?!\/auth\/discord).*/, AuthentificationDiscord.verifyTokenMiddleware, async (ctx, next) => {
+  router.get(/^(?!\/(auth\/discord|socket\.io)).*/, AuthentificationDiscord.verifyTokenMiddleware, async (ctx, next) => {
     // si l'url ne commence pas par /assets/ renvoyer l'html
     if (!ctx.url.startsWith('/assets/')) {
       // envoie le fichier html
       ctx.type = 'html';
-      ctx.body = fs.createReadStream(path.join(__dirname, '../page/build/index.html'));
+      ctx.body = fs.createReadStream(path.join(__dirname, '../../MaitreDesBonbonsWeb/dist/index.html'));
       return next()
     }
 
     // Le code de votre route ici
-    await serve(path.join(__dirname, '../page/build'))(ctx, next);
+    await serve(path.join(__dirname, '../../MaitreDesBonbonsWeb/dist/'))(ctx, next);
   });
 
 
@@ -177,11 +185,25 @@ const start = () => {
   app.use(router.routes());
   app.use(router.allowedMethods());
 
-  // Démarrez le serveur sur le port process.env.PORT || 80;
-  const PORT = process.env.PORT || 80;
-  server.listen(PORT, () => {
-    console.log(`Serveur Koa démarré sur le port ${PORT}`);
-  });
+  // Démarrez le serveur sur le port process.env.PORT || 443;
+  const PORT = process.env.PORT || 443;
+  // server.listen(PORT, () => {
+  //   console.log(`Serveur Koa démarré sur le port ${PORT}`);
+  // });
+
+  app.use(enforceHttps({
+    port: PORT
+    }));
+    
+    const serveur = https.createServer(options, app.callback());
+    serveur.listen(PORT, () => { 
+      console.log(`Serveur Koa démarré sur le port ${PORT}`);
+    });
+
+    // relie le ws au serveur https
+    io.attach(serveur);
+
+
 }
 
 module.exports = {

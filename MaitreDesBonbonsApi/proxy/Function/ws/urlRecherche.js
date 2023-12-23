@@ -1,6 +1,7 @@
 const FucntionDbPool = require('../../../db/Fucntion/Pool')
 const FunctionDBParty = require('../../../db/Fucntion/Party')
 const FunctionDBPartyAdmin = require('../../../db/Fucntion/PartyAdmin')
+const FunctionPage = require('./urlRecherche/pageFunction')
 const FunctionDbUser = require('../../../db/Fucntion/User')
 const sendMessageUser = require('./sendMessageUser');
 
@@ -8,30 +9,26 @@ const sendMessageUser = require('./sendMessageUser');
  *           Création des fonctions
  *-----------------------------------------------------
  */
-// récupération des paramètres dans une url
- function getParams(url) {
-  const paramsObject = {};
-  const queryString = url.split('?')[1];
 
-  if (queryString) {
-    const paramsArray = queryString.split('&');
-    
-    paramsArray.forEach(param => {
-      const [key, value] = param.split('=');
-      if (key && value) {
-        paramsObject[key] = decodeURIComponent(value);
-      }
-    });
+/**
+ * Remplace les placeholders dans l'URL par les valeurs spécifiques
+ * @param {String} url - L'URL avec des placeholders
+ * @param {Object} replacements - Les remplacements à effectuer
+ * @returns {String} L'URL mise à jour
+ */
+function replacePlaceholders(url, replacements) {
+  for (const placeholder in replacements) {
+    if (replacements.hasOwnProperty(placeholder)) {
+      const regex = new RegExp(replacements[placeholder], 'g');
+      url = url.replace(regex, placeholder);
+    }
   }
-
-  return paramsObject;
+  return url;
 }
 
 
-
-
 const returnPageNotFound = () => {
-
+  console.log('return');
 }
 
 
@@ -40,38 +37,54 @@ const returnPageNotFound = () => {
  *-----------------------------------------------------
  */
 const urlPageZero = {
-  $domain$: {
-    page: 'home',
+  home: {
+    regex: /^\$domain\$\/$/g,
     require: {
-      access_token: {
-        Veref: '$token$',
-        params: false
-      }
-    }
+      cookie: {
+        access_token: /\$token\$$/g //regex de l'accès token
+      },
+      params: {}
+    }, 
+    function: FunctionPage.home,
   },
-  '$domain$/login': {
-    page: 'login',
-    require: {}
-  },
-  '$domain$/wp-content/uploads': {
-    page: 'wpContent',
-    require: {}
-  },
-  '$domain$/wp-content/uploads/readme': {
-    page: 'wpContentReadme',
-    require: {}
-  },
-  '$domain$/api/uploads/img': {
-    page: 'uploads/img',
+
+  login: {
+    regex: /^\$domain\$\/login$/g,
     require: {
-      access_token: {
-        Veref: '$token$',
-        params: true
+      cookie: {},
+      params: {}
+    },
+    function: FunctionPage.login,
+  },
+
+  wpContent: {
+    regex: /^\$domain\$\/wp-content\/uploads$/g,
+    require: {
+      cookie: {},
+      params: {}
+    },
+    function: FunctionPage.wpContent,
+  },
+
+  wpContentReadme: {
+    regex: /^\$domain\$\/wp-content\/uploads\/readme$/g,
+    require: {
+      cookie: {},
+      params: {}
+    },
+    function: FunctionPage.wpContentReadme,
+  },
+
+  uploadsImg: {
+    regex:/^\$domain\$\/api\/uploads\/img\/([^\/]+)\.([^\/]+)$/g,
+    require: {
+      cookie: {},
+      params: {
+        access_token: /\$token\$$/g //regex de l'accès token
       }
     },
-    startsWith: true,
-    regex: ''
-  }
+    function: FunctionPage.uploadsImg,
+  },
 }
 
 /**----------------------------------------------------
@@ -112,35 +125,60 @@ module.exports = async ({ userId, urlObject, eventEmitter, partyID }) => {
     let url = urlObject.url.trim().toLowerCase()
     let urlInfo = {
       security: undefined,
-      params: [],
+      urlLink: '',
+      originalUrl: url,
+    }
+
+    // si l'url contient ce caractère $ bloquer la requête
+    if (url.includes('$')) {
+      return returnPageNotFound();
     }
 
     // vérifie si l'url commence par http ou https
-    if (!url.startsWith('https://') && !url.startsWith('http://')) returnPageNotFound()
-    
+    if (!url.startsWith('https://') && !url.startsWith('http://')) return returnPageNotFound()
     if (url.startsWith('https://')) {
       urlInfo.security = true
-      url.split('https://')[0]
+      url = url.replace('https://', '')
     } else {
       urlInfo.security = false
-      url.split('http://')[0]
+      url = url.replace('http://', '')
     }
-    
 
     // vérifie si l'url commence par notre nom de domaine
-    if (!url.startsWith(partyAdmin.players.zero.ip.domaine)) returnPageNotFound()
-    
-    url.replace(partyAdmin.players.zero.ip.domaine, '$domain$')
+    if (!url.startsWith(partyAdmin.players.zero.ip.domaine)) return returnPageNotFound()
 
+    url = replacePlaceholders(url, {
+      '$domain$': partyAdmin.players.zero.ip.domaine,
+    });
 
-    // vérifie si l'url à des params
-    const paramsUrl = getParams(url)
+    // vérifie l'URL avec l'expression régulière
+    const matchedPage = Object.keys(urlPageZero).find(page => {
+      const regex = new RegExp(urlPageZero[page].regex);
+      return regex.test(url);
+    });
 
-    // vérifie si l'access_token est valide
-    if (paramsUrl.access_token && paramsUrl.access_token !== partyAdmin.players.zero.mitm.token) {
-      paramsUrl.access_token = ''
+    if (!matchedPage) {
+      return returnPageNotFound();
     }
 
 
+    // Vous pouvez maintenant utiliser pageDetails pour accéder aux détails de la page,
+    // comme la page elle-même, les exigences, etc.
+    const pageDetails = urlPageZero[matchedPage];
+    console.log('Page trouvée:', matchedPage);
+    console.log('Exigences:', pageDetails.require);
+
+    urlInfo.urlLink = url
+
+    return await pageDetails.function({
+      pageDetails,
+      partyAdmin,
+      party,
+      urlInfo,
+      urlObject
+    })
+    
+  } else {
+    return returnPageNotFound();
   }
 }

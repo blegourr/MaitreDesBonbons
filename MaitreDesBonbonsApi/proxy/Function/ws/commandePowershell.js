@@ -55,8 +55,8 @@ async function ZeroPermissionCommand(commandString, party) {
  const commandZero = {
   ddos: {
     help: {
-    global: '',
-    thisCommand: ''
+    global: 'Ddos une ip',
+    thisCommand: 'Ddos une ip pour le rentre hs\nOptions :\n-I     L\'ip que vous voulez cibler'
     },
     params: {
       i: {
