@@ -5,7 +5,7 @@ const proxy = require('./proxy/proxy');
 // Fonction pour se connecter à la base de données
 async function connectToDatabase(uri, options) {
     try {
-        await mongoose.connect(uri, options);
+        await mongoose.connect(uri, options)
         console.log('Connexion à la base de données réussie');
     } catch (error) {
         console.error('Erreur lors de la connexion à la base de données:', error);
@@ -27,7 +27,7 @@ const mongOption = {
 
 // Appel de la fonction pour se connecter à la base de données
 connectToDatabase(DATABASE_URI, mongOption)
-    .then(() => {
+    .then(async () => {
         // Définition de la promesse mongoose.Promise à global.Promise
         mongoose.Promise = global.Promise;
 

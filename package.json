@@ -16,7 +16,7 @@
     "koa-sslify": "^5.0.1",
     "koa-static": "^5.0.0",
     "mime": "^3.0.0",
-    "mongoose": "^7.6.0",
+    "mongoose": "^8.1.2",
     "node-fetch": "^3.3.2",
     "socket.io": "^4.7.2",
     "ws": "^8.14.2"

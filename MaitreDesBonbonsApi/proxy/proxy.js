@@ -49,7 +49,8 @@ const start = () => {
    *-----------------------------------------------------
    */
   // Configuration de Socket.io
-  const serverSocket = https.createServer(options, app.callback());
+  const serverSocket = http.createServer(app.callback());
+  // const serverSocket = https.createServer(options, app.callback());
   const io = new Server(serverSocket);
 
   io.on('connection', async (socket) => {
