@@ -5,13 +5,17 @@ const proxy = require('./proxy/proxy')
 
 dotenv.config();
 
-const mongOption = {
-  autoIndex: false, // Don't build indexes
-  maxPoolSize: 10, // Maintain up to 10 socket connections
-  serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-  family: 4 // Use IPv4, skip trying IPv6
-}
+const mongOption = {}; // Définition initiale d'un objet vide
+
+// Configuration des options de connexion à MongoDB
+mongOption.autoIndex = false; // Ne pas construire d'index automatiquement
+mongOption.maxPoolSize = 10; // Maintenir jusqu'à 10 connexions simultanées
+mongOption.serverSelectionTimeoutMS = 5000; // Durée maximale pour sélectionner le serveur (en millisecondes)
+mongOption.socketTimeoutMS = 45000; // Durée maximale d'inactivité avant de fermer la connexion (en millisecondes)
+mongOption.family = 4; // Utiliser IPv4 (ignorer IPv6)
+
+// Le reste de votre code
+
 
 const client = {} // voir pour mettre le bot discord dedans
 
