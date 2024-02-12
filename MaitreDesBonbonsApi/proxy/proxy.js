@@ -1,7 +1,7 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const { Server } = require("socket.io");
-// const http = require('http');
+const http = require('http');
 const https = require('https');
 const { default: enforceHttps } = require('koa-sslify');
 const serve = require('koa-static');
@@ -33,10 +33,10 @@ const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_CALLBACK_URL;
 
-let options = {
-  key: fs.readFileSync(path.join(__dirname, '../ssl/private.pem')),
-  cert: fs.readFileSync(path.join(__dirname, '../ssl/public.pem'))
-}
+// let options = {
+//   key: fs.readFileSync(path.join(__dirname, '../ssl/private.pem')),
+//   cert: fs.readFileSync(path.join(__dirname, '../ssl/public.pem'))
+// }
 
 /**----------------------------------------------------
  *                     CODE
@@ -187,18 +187,19 @@ const start = () => {
 
   // Démarrez le serveur sur le port process.env.PORT || 443;
   const PORT = process.env.PORT || 443;
-  // server.listen(PORT, () => {
-  //   console.log(`Serveur Koa démarré sur le port ${PORT}`);
-  // });
+    const serveur = http.createServer(app.callback());
+    serveur.listen(PORT, () => {
+    console.log(`Serveur Koa démarré sur le port ${PORT}`);
+  });
 
-  app.use(enforceHttps({
-    port: PORT
-    }));
+  // app.use(enforceHttps({
+  //   port: PORT
+  //   }));
     
-    const serveur = https.createServer(options, app.callback());
-    serveur.listen(PORT, () => { 
-      console.log(`Serveur Koa démarré sur le port ${PORT}`);
-    });
+    // const serveur = https.createServer(options, app.callback());
+    // serveur.listen(PORT, () => { 
+    //   console.log(`Serveur Koa démarré sur le port ${PORT}`);
+    // });
 
     // relie le ws au serveur https
     io.attach(serveur);
