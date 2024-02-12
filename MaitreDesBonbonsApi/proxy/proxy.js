@@ -165,12 +165,15 @@ const start = () => {
     if (!ctx.url.startsWith('/assets/')) {
       // envoie le fichier html
       ctx.type = 'html';
-      ctx.body = fs.createReadStream(path.join(__dirname, '../../MaitreDesBonbonsWeb/dist/index.html'));
+      // ctx.body = fs.createReadStream(path.join(__dirname, '../../MaitreDesBonbonsWeb/dist/index.html'));
+      ctx.body = fs.createReadStream(path.join(__dirname, '../page/build/index.html'));
+
       return next()
     }
 
     // Le code de votre route ici
-    await serve(path.join(__dirname, '../../MaitreDesBonbonsWeb/dist/'))(ctx, next);
+    // await serve(path.join(__dirname, '../../MaitreDesBonbonsWeb/dist/'))(ctx, next);
+    await serve(path.join(__dirname, '../page/build'))(ctx, next);
   });
 
 
