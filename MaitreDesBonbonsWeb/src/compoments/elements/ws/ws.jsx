@@ -3,12 +3,27 @@ import PropTypes from 'prop-types';
 import { io } from 'socket.io-client';
 
 const WebSocketProvider = ({onDataPool, onDataParty, children }) => {
+  // Définissez une variable pour l'URL en fonction de l'environnement
+  let apiUrl;
+  if (import.meta.env.MODE === 'development') {
+    console.log("dev")
+    apiUrl = import.meta.env.VITE_API_URL_DEV;
+  } else if (import.meta.env.MODE === 'production') {
+    console.log("prod")
+    apiUrl = import.meta.env.VITE_API_URL_PROD;
+  } else {
+    console.error('Mode non géré:', import.meta.env.MODE);
+  }
+
+console.log('API URL:', apiUrl);
+
+
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     // Établir une connexion WebSocket avec le serveur socket.io
     // const newSocket = io('http://localhost');
-    const newSocket = io('https://masterofcandy.blegourr.fr');
+    const newSocket = io(`${apiUrl}`);
 
     newSocket.on('connect', () => {
       console.log('Connecté au serveur socket.io');
@@ -54,7 +69,7 @@ const WebSocketProvider = ({onDataPool, onDataParty, children }) => {
     return () => {
       newSocket.disconnect();
     };
-  }, [onDataParty, onDataPool]);
+  }, [onDataParty, onDataPool, apiUrl]);
 
   const sendMessage = useCallback(({type, message}) => {
     // Envoyer un message au serveur socket.io

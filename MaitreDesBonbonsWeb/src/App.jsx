@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import WebSocketProvider from './compoments/elements/ws/ws';
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 // import css
 import './App.css';
