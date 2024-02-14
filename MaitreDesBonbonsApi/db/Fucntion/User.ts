@@ -1,7 +1,7 @@
 const User = require('../User'); // Importez le modèle d'utilisateur
 
 // Fonction pour créer un utilisateur
-async function createUser(userID, userData = {}) {
+export async function createUser(userID: string, userData = {}) {
   try {
     const user = new User({
       userId: userID,
@@ -15,7 +15,7 @@ async function createUser(userID, userData = {}) {
 }
 
 // Fonction pour récupérer un utilisateur par son userID
-async function getUserByUserID(userID) {
+export async function getUserByUserID(userID: string) {
   try {
     const user = await User.findOne({ userId: userID });
     return user;
@@ -25,7 +25,7 @@ async function getUserByUserID(userID) {
 }
 
 // Fonction pour mettre à jour un utilisateur par son userID
-async function updateUserByUserID(userID, updatedData) {
+export async function updateUserByUserID(userID: string, updatedData: any) {
   try {
     const updatedUser = await User.findOneAndUpdate({ userId: userID }, updatedData, { new: true });
     return updatedUser;
@@ -35,17 +35,10 @@ async function updateUserByUserID(userID, updatedData) {
 }
 
 // Fonction pour supprimer un utilisateur par son userID
-async function deleteUserByUserID(userID) {
+export async function deleteUserByUserID(userID: string) {
   try {
     await User.deleteOne({ userId: userID });
   } catch (error) {
     throw error;
   }
 }
-
-module.exports = {
-  createUser,
-  getUserByUserID,
-  updateUserByUserID,
-  deleteUserByUserID,
-};

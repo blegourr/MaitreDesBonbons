@@ -3,10 +3,11 @@ import express from 'express';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser'
 import path from 'path';
 import { EventEmitter } from 'events';
 import { getCookieValue } from './Function/cookieGestion';
-import { verifyTokenMiddleware, verifyToken } from './Function/AuthentificationDiscord'; //authDiscordAcount
+import { verifyTokenMiddleware, verifyToken, authDiscordAcount } from './Function/AuthentificationDiscord'; //authDiscordAcount
 
 export function start(port: number) {
   /*--------------------------------------------------------------------
@@ -29,6 +30,11 @@ export function start(port: number) {
   **/
   app.use(cors());
   app.use(cookieParser());
+  // parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 
   /*--------------------------------------------------------------------
    *                              Socket.io
@@ -90,14 +96,14 @@ export function start(port: number) {
 
 
   // authentification with discord
-  app.get(/^\/auth\/discord/g, (req, res) => {
-    res.send("Hello From Express and Typescirpt");
+  app.get(/^\/auth\/discord/g, async (req, res) => {
+    await authDiscordAcount(req, res);
   })
 
   // Web distribution
   app.get(/^(?!\/(auth\/discord|socket\.io)).*/, async (req, res, next) => {
 
-    if (await verifyTokenMiddleware(req, res, next)) {
+    if (await verifyTokenMiddleware(req, res)) {
       if (!req.url.startsWith('/assets/')) {
         // envoie le fichier html
         res.type('html');
