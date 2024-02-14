@@ -1,9 +1,9 @@
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
-const proxy = require('./proxy/proxy');
+import mongoose from 'mongoose';
+import dotenv from 'dotenv'
+import { start } from './proxy/proxy';
 
 // Fonction pour se connecter à la base de données
-async function connectToDatabase(uri, options) {
+async function connectToDatabase(uri: string, options: object) {
     try {
         await mongoose.connect(uri, options)
         console.log('Connexion à la base de données réussie');
@@ -15,7 +15,9 @@ async function connectToDatabase(uri, options) {
 
 dotenv.config();
 
-const DATABASE_URI = process.env.DATABASE_URI;
+// récupération des variables
+const DATABASE_URI = process.env.DATABASE_URI || 'mongodb://localhost:27017/MaitreDesBonBons';
+const PORT = parseInt(process.env.PORT ?? '80', 10);
 
 const mongOption = {
     autoIndex: false,
@@ -35,7 +37,7 @@ connectToDatabase(DATABASE_URI, mongOption)
         console.log('DB connectée');
 
         // Vérifie si une partie existe sinon la crée
-        proxy.start();
+        start(PORT);
     })
     .catch(error => {
         // Gestion de l'erreur de connexion à la base de données
