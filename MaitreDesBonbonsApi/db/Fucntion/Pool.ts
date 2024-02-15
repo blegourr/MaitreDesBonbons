@@ -102,6 +102,10 @@ export async function addUserToPool(poolId: string, userId: string, socketEmitUs
       // récupère les données de l'utilisateur
       const user = await getUserByUserID(userId);
 
+      if (!user) {
+        throw new Error('Impossible de récupérer les informations de l\'utilisateur.'); 
+      }
+
       // Ajoutez l'utilisateur à la piscine en utilisant la méthode set de la Map
       pool.users.set(userId, { userId: userId, avatar: user.avatar, name: user.name, socketEmitUser: socketEmitUser });
 

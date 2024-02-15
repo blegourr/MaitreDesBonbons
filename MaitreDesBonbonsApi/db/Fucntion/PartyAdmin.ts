@@ -1,9 +1,9 @@
-const PartyAdmin = require('../PartyAdmin');
+import PartyAdminModel, { PartyAdminDocument } from '../PartyAdmin';
 
 // Fonction pour créer une partyAdmin
-async function createpartyAdmin(partyID, initialData) {
+export async function createPartyAdmin(partyID: string, initialData: any): Promise<any> {
   try {
-    const partyAdmin = new PartyAdmin({ partyID, ...initialData });
+    const partyAdmin = new PartyAdminModel({ partyID, ...initialData });
     const newPartyAdmin = await partyAdmin.save();
     return newPartyAdmin;
   } catch (error) {
@@ -12,9 +12,9 @@ async function createpartyAdmin(partyID, initialData) {
 }
 
 // Fonction pour récupérer une partyAdmin par son partyID
-async function getpartyBypartyAdminID(partyID) {
+export async function getPartyAdminByPartyID(partyID: string): Promise<any> {
   try {
-    const partyAdmin = await PartyAdmin.findOne({ partyID });
+    const partyAdmin = await PartyAdminModel.findOne({ partyID });
     return partyAdmin;
   } catch (error) {
     throw error;
@@ -22,50 +22,37 @@ async function getpartyBypartyAdminID(partyID) {
 }
 
 // Fonction pour mettre à jour une partyAdmin par son partyId
-async function updatepartyAdminBypartyID(partyId, updatedData) {
+export async function updatePartyAdminByPartyID(partyId: string, updatedData: any): Promise<any> {
   try {
-    const updatedpartyAdmin = await PartyAdmin.findOneAndUpdate({ partyID: partyId }, updatedData, { new: true });
-    return updatedpartyAdmin;
+    const updatedPartyAdmin = await PartyAdminModel.findOneAndUpdate({ partyID: partyId }, updatedData, { new: true });
+    return updatedPartyAdmin;
   } catch (error) {
     throw error;
   }
 }
 
 // Fonction pour supprimer une partyAdmin par son partyId
-async function deletepartyAdminBypartyID(partyId) {
+export async function deletePartyAdminByPartyID(partyId: string): Promise<void> {
   try {
-    await PartyAdmin.deleteOne({ partyId });
+    await PartyAdminModel.deleteOne({ partyID: partyId });
   } catch (error) {
     throw error;
   }
 }
 
-async function addDomains(partyID, domaine, ip) {
+// Fonction pour ajouter des domaines à une partyAdmin
+export async function addDomains(partyID: string, domaine: string, ip: string): Promise<any> {
   try {
-    // Recherchez la piscine par son partyID
-    const partyAdmin = await PartyAdmin.findOne({ partyID: partyID });
+    const partyAdmin = await PartyAdminModel.findOne({ partyID: partyID }) as PartyAdminDocument;
 
     if (!partyAdmin) {
-      // Si la piscine n'existe pas, vous pouvez prendre des mesures supplémentaires ici, par exemple, renvoyer une erreur.
       console.log('PartyAdmin non trouvée :', partyID);
       return;
     }
 
-
-    // Ajoutez l'utilisateur à la piscine en utilisant la méthode set de la Map
     partyAdmin.players.zero.ip.domaineToIp.set(domaine, ip);
-
-    // Enregistrez la piscine mise à jour dans la base de données
     return await partyAdmin.save();
   } catch (error) {
     console.error('Une erreur s\'est produite :', error);
   }
 }
-
-module.exports = {
-  createpartyAdmin,
-  getpartyBypartyAdminID,
-  updatepartyAdminBypartyID,
-  deletepartyAdminBypartyID,
-  addDomains,
-};

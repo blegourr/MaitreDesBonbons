@@ -56,6 +56,47 @@ interface PartyAdmin extends Document {
     players: Players;
 }
 
+export interface PartyAdminDocument extends Document {
+    partyID: string;
+    players: {
+        maitreBonBon: {};
+        agentFbi: {};
+        zero: {
+            ip: {
+                ip: string;
+                domaine: string;
+                domaineToIp: Map<string, string>;
+            };
+            mdpOfsession: {
+                mdp: string;
+                directoryListing: string;
+                file: File[];
+            };
+            userOfSession: {
+                SQLInjection: string;
+            };
+            fileOnSession: {
+                access: boolean;
+                file: File[];
+            };
+            ddos: {
+                inProgress: boolean;
+            };
+            mitm: {
+                inProgress: boolean;
+                token: string;
+            };
+            metadata: {
+                mdp: string;
+            };
+            coordinate: {
+                finish: boolean;
+                coordinate: string;
+            };
+        };
+    };
+}
+
 const domainToIpMapSchema: Schema = new Schema({
     type: Map,
     of: { type: String }
@@ -101,7 +142,7 @@ const zeroSchema: Schema = new Schema({
         coordinate: String
     }
 });
-
+ 
 const partyAdminSchema: Schema = new Schema({
     partyID: String,
     players: {

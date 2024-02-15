@@ -1,9 +1,9 @@
-const Party = require('../Party');
+import PartyModel from '../Party';
 
 // Fonction pour créer une party
-async function createparty(partyID) {
+export async function createParty(partyID: string): Promise<any> {
   try {
-    const party = new Party({partyID});
+    const party = new PartyModel({ partyID });
     const newParty = await party.save();
     return newParty;
   } catch (error) {
@@ -12,9 +12,9 @@ async function createparty(partyID) {
 }
 
 // Fonction pour récupérer une party par son partyID
-async function getpartyBypartyID(partyID) {
+export async function getPartyByPartyID(partyID: string): Promise<any> {
   try {
-    const party = await Party.findOne({ partyID });
+    const party = await PartyModel.findOne({ partyID });
     return party;
   } catch (error) {
     throw error;
@@ -22,27 +22,20 @@ async function getpartyBypartyID(partyID) {
 }
 
 // Fonction pour mettre à jour une party par son partyId
-async function updatepartyBypartyID(partyId, updatedData) {
+export async function updatePartyByPartyID(partyId: string, updatedData: any): Promise<any> {
   try {
-    const updatedparty = await Party.findOneAndUpdate({ partyID: partyId }, updatedData, { new: true });
-    return updatedparty;
+    const updatedParty = await PartyModel.findOneAndUpdate({ partyID: partyId }, updatedData, { new: true });
+    return updatedParty;
   } catch (error) {
     throw error;
   }
 }
 
 // Fonction pour supprimer une party par son partyId
-async function deletepartyBypartyID(partyId) {
+export async function deletePartyByPartyID(partyId: string): Promise<void> {
   try {
-    await Party.deleteOne({ partyId });
+    await PartyModel.deleteOne({ partyID: partyId });
   } catch (error) {
     throw error;
   }
 }
-
-module.exports = {
-  createparty,
-  getpartyBypartyID,
-  updatepartyBypartyID,
-  deletepartyBypartyID,
-};

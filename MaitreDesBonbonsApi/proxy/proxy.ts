@@ -8,6 +8,7 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import { getCookieValue } from './Function/cookieGestion';
 import { verifyTokenMiddleware, verifyToken, authDiscordAcount } from './Function/AuthentificationDiscord'; //authDiscordAcount
+import joinPool  from "./Function/ws/joinPool"
 
 export function start(port: number) {
   /*--------------------------------------------------------------------
@@ -31,10 +32,9 @@ export function start(port: number) {
   app.use(cors());
   app.use(cookieParser());
   // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse application/json
-app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded({ extended: false }))
+  // parse application/json
+  app.use(bodyParser.json())
 
   /*--------------------------------------------------------------------
    *                              Socket.io
@@ -69,11 +69,11 @@ app.use(bodyParser.json())
     });
 
     // faits rejoindre l'utilisateur une pool
-    // joinPool({
-    //   userId: user.id,
-    //   eventEmitter: eventEmitter,
-    //   socketEmitUser: socketEmitUser
-    // })
+    joinPool({
+      userId: user.id,
+      eventEmitter: eventEmitter,
+      socketEmitUser: socketEmitUser
+    })
 
 
     /**----------------------------------------------------

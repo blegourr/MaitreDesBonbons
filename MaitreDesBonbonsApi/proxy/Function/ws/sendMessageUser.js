@@ -1,5 +1,3 @@
-const FucntionDbPool = require('../../../db/Fucntion/Pool')
-
 /**
  * création de la function permettant de join la pool
  * @param {number} userId 

@@ -1,4 +1,6 @@
-const User = require('../User'); // Importez le modèle d'utilisateur
+// const User = require('../User'); // Importez le modèle d'utilisateur
+import User from '../User'
+
 
 // Fonction pour créer un utilisateur
 export async function createUser(userID: string, userData = {}) {
@@ -20,7 +22,7 @@ export async function getUserByUserID(userID: string) {
     const user = await User.findOne({ userId: userID });
     return user;
   } catch (error) {
-    throw error;
+    return false;
   }
 }
 

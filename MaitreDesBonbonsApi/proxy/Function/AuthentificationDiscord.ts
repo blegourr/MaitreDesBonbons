@@ -106,6 +106,7 @@ export async function verifyToken(accessToken: string) {
  */
  export async function authDiscordAcount(req: Request, res: Response): Promise<void> {
   // récupère le code d'authentification présents dans l'url de la page
+
   const code = req.query.code;
   if (!code) {console.error(`erreur système authDiscordAcount #&d`, 1);
     return res.redirect('/errorLogin');
@@ -167,7 +168,7 @@ export async function verifyToken(accessToken: string) {
   // vérifie si l'utilisateur se trouve dans la db si oui modifie le pour mettre à jour ces donnée sinon crée le
   const UserFound = await getUserByUserID(user.id)
   if (!UserFound) {
-    createUser(user.id, {
+    await createUser(user.id, {
       name: user.global_name,
       avatar: user.avatar,
     })
