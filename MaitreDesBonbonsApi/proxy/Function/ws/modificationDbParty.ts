@@ -4,8 +4,8 @@ import sendMessagePool from './sendMessagePool';
 
 interface ModificationDbPartyParams {
   userId: string;
-  dataBaseModified: any; // Remplacer 'any' par le type approprié si nécessaire
-  eventEmitter: any; // Remplacer 'any' par le type approprié si nécessaire
+  dataBaseModified: any;
+  eventEmitter: any;
 }
 
 /**
