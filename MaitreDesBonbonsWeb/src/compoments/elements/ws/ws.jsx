@@ -22,7 +22,6 @@ console.log('API URL:', apiUrl);
 
   useEffect(() => {
     // Établir une connexion WebSocket avec le serveur socket.io
-    // const newSocket = io('http://localhost');
     const newSocket = io(`${apiUrl}`);
 
     newSocket.on('connect', () => {
@@ -31,7 +30,7 @@ console.log('API URL:', apiUrl);
 
     newSocket.on('UserJoin', (data) => {
       console.log('Message du serveur :', data);
-      return onDataPool(data)
+      return onDataPool(data);
     });
 
     newSocket.on('ModifDBParty', (data) => {

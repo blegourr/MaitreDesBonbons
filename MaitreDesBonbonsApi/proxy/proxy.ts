@@ -8,7 +8,9 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import { getCookieValue } from './Function/cookieGestion';
 import { verifyTokenMiddleware, verifyToken, authDiscordAcount } from './Function/AuthentificationDiscord'; //authDiscordAcount
-import joinPool  from "./Function/ws/joinPool"
+import joinPool  from "./Function/ws/joinPool";
+import choicePersonage from './Function/ws/ChoicePersonage';
+import modificationDbParty from './Function/ws/modificationDbParty';
 
 export function start(port: number) {
   /*--------------------------------------------------------------------
@@ -56,7 +58,6 @@ export function start(port: number) {
     const user = await verifyToken(access_token || '')
 
     if (!user) {
-      
       return console.error('error -> user Undefund')
     }
     // crée un event permettant de recontacter l'utilisateur
@@ -79,8 +80,30 @@ export function start(port: number) {
     /**----------------------------------------------------
      *             Création des liseners
      *-----------------------------------------------------
-     */
-     socket.on('disconnect', () => {
+    **/
+    // tous faire pour supprimer ça au plus vite
+    socket.on('ModifDBParty', (data) => {
+      // modifie la db et renvoie les modification à tous les utilisateurs
+      modificationDbParty({
+        userId: user.id,
+        dataBaseModified: data,
+        eventEmitter: eventEmitter,
+      })
+    });
+
+
+    // modifie la db et renvoie les modification à tous les utilisateurs
+    socket.on('ChoicePersonage', (data) => {
+      choicePersonage({
+        userId: user.id,
+        partyID: data.partyID,
+        personageSelec: data.personageSelec,
+        eventEmitter: eventEmitter,
+      })
+    });
+
+
+    socket.on('disconnect', () => {
       console.log('Un utilisateur s\'est déconnecté.');
     });
 

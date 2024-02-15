@@ -87,95 +87,107 @@ export default async function joinPool({ userId, socketEmitUser, eventEmitter }:
       throw new Error('userID or socketEmitUser or eventEmitter is undefined');
     }
 
-    // Vérification si l'utilisateur se trouve dans une pool
-    const userInPool = await isUserInAnyPool(userId);
-    if (userInPool) {
-      // L'utilisateur est déjà dans une pool
-      return;
-    }
+    new Promise(async (resolve, reject) => {
 
-    // Vérifie s'il reste de la place dans une pool
-    const firstAvailablePool = await getFirstAvailablePool();
-    if (firstAvailablePool) {
-      // Fait rejoindre l'utilisateur à la pool
-      await addUserToPool(firstAvailablePool, userId, socketEmitUser);
-      return;
-    }
 
-    // Récupération des informations de l'utilisateur
-    const user = await getUserByUserID(userId);
+      // Vérification si l'utilisateur se trouve dans une pool
+      const userInPool = await isUserInAnyPool(userId);
+      if (userInPool) {
+        // L'utilisateur est déjà dans une pool
+        return resolve(1);
+      }
 
-    if (!user) {
-      throw new Error('Impossible de récupérer les informations de l\'utilisateur.'); 
-    }
+      // Vérifie s'il reste de la place dans une pool
+      const firstAvailablePool = await getFirstAvailablePool();
+      if (firstAvailablePool) {
+        // Fait rejoindre l'utilisateur à la pool
+        await addUserToPool(firstAvailablePool, userId, socketEmitUser);
+        return resolve(2);
+      }
 
-    // Crée la pool et la partie
-    const initialUsers = new Map([[userId, { userId: userId, socketEmitUser: socketEmitUser, avatar: user.avatar, name: user.name }]]);
-    const newPool = await createPool(Date.now().toString(), initialUsers);
-    await createParty(newPool.poolID);
-    await createPartyAdmin(newPool.poolID, {
-      partyID: newPool.poolID,
-      players: {
-        maitreBonBon: {},
-        agentFbi: {},
-        zero: {
-          ip: {
-            ip: generateRandomIPAddress(),
-            domaine: generateDomainName(),
-            domaineToIp: {},
-          },
-          mdpOfsession: {
-            mdp: generateRandomPassword(64),
-            file: []
-          },
-          userOfSession: {},
-          fileOnSession: {
-            file: generateArrayWithRandomUrlForImage(5)
-          },
-          ddos: {},
-          mitm: {
-            token: generateRandomPassword(64),
-          },
-          metadata: {
-            mdp: generateRandomPassword(64),
-          },
-          coordinate: {},
-        }
-      },
-    });
 
-    /* ----------------------------------------------------
-    *             envoie des messages à la pool
-    * -----------------------------------------------------
-    */
+      // Récupération des informations de l'utilisateur
+      const user = await getUserByUserID(userId);
 
-    // Récupération de la pool et de la partie de l'utilisateur
-    const userPoolId = await isUserInAnyPool(userId);
+      if (!user) {
+        // revois un message renvoyant sur le /erreurLogin
+        return reject();
+      }
 
-    if (!userPoolId) {
-      throw new Error('Erreur pendant l\'ajoutde l\'utilisateur à la db');
-    }
+      // Crée la pool et la partie
+      const initialUsers = new Map([[userId, { userId: userId, socketEmitUser: socketEmitUser, avatar: user.avatar, name: user.name }]]);
+      const newPool = await createPool(Date.now().toString(), initialUsers);
+      await createParty(newPool.poolID);
+      await createPartyAdmin(newPool.poolID, {
+        partyID: newPool.poolID,
+        players: {
+          maitreBonBon: {},
+          agentFbi: {},
+          zero: {
+            ip: {
+              ip: generateRandomIPAddress(),
+              domaine: generateDomainName(),
+              domaineToIp: {},
+            },
+            mdpOfsession: {
+              mdp: generateRandomPassword(64),
+              file: []
+            },
+            userOfSession: {},
+            fileOnSession: {
+              file: generateArrayWithRandomUrlForImage(5)
+            },
+            ddos: {},
+            mitm: {
+              token: generateRandomPassword(64),
+            },
+            metadata: {
+              mdp: generateRandomPassword(64),
+            },
+            coordinate: {},
+          }
+        },
+      })
 
-    const pool = await getPoolByPoolID(userPoolId);
-    const party = await getPartyByPartyID(userPoolId);
+      return resolve(3);
 
-    // Envoie un message à tous les utilisateurs de la pool
-    sendMessagePool({
-      poolId: userPoolId,
-      message: pool,
-      eventEmitter: eventEmitter,
-      userId: userId,
-      event: 'UserJoin'
-    });
 
-    // Crée un message renvoyant la party
-    sendMessagePool({
-      poolId: userPoolId,
-      message: party,
-      eventEmitter: eventEmitter,
-      userId: userId,
-      event: 'ModifDBParty'
-    });
+    }).then(async () => {
+      /* ----------------------------------------------------
+       *             envoie des messages à la pool
+       * -----------------------------------------------------
+      **/
+
+      // Récupération de la pool et de la partie de l'utilisateur
+      const userPoolId = await isUserInAnyPool(userId);
+
+      if (!userPoolId) {
+        throw new Error('Erreur pendant l\'ajoutde l\'utilisateur à la db');
+      }
+
+      const pool = await getPoolByPoolID(userPoolId);
+      const party = await getPartyByPartyID(userPoolId);
+
+      // Envoie un message à tous les utilisateurs de la pool
+      sendMessagePool({
+        poolId: userPoolId,
+        message: pool,
+        eventEmitter: eventEmitter,
+        userId: userId,
+        event: 'UserJoin'
+      });
+
+      // Crée un message renvoyant la party
+      sendMessagePool({
+        poolId: userPoolId,
+        message: party,
+        eventEmitter: eventEmitter,
+        userId: userId,
+        event: 'ModifDBParty'
+      });
+    }).catch(e => {
+      console.error('joinPool', e)
+    })
 
   } catch (error) {
     console.error('Une erreur s\'est produite :', error);

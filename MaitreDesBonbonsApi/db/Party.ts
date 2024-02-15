@@ -1,5 +1,32 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// Créez une interface pour décrire les valeurs par défaut de chaque sous-schéma
+interface DefaultValues {
+    [key: string]: any;
+}
+
+// Définissez les valeurs par défaut pour chaque sous-schéma
+const defaultValues: DefaultValues = {
+    players: { playersID: '' },
+    zero: { DDOS: false, metadata: false, MITM: false, urlFailShearch: false },
+};
+
+// Générez les fonctions par défaut à partir des valeurs par défaut du schéma
+const generateDefaultFunctions = (values: DefaultValues) => {
+    const defaultFunctions: { [key: string]: Function } = {};
+    for (const key in values) {
+        defaultFunctions[`getDefault${key.charAt(0).toUpperCase() + key.slice(1)}`] = () => values[key];
+    }
+    return defaultFunctions;
+};
+
+// Générez les fonctions par défaut
+const defaultFunctions = generateDefaultFunctions(defaultValues);
+
+// Déstructurez les fonctions par défaut pour une utilisation facile
+const { getDefaultPlayers, getDefaultZero } = defaultFunctions;
+
+
 interface Players {
     playersID: string;
 }
@@ -46,22 +73,24 @@ const zeroSoftwareSchema: Schema = new Schema({
 const partySchema: Schema = new Schema({
     partyID: { type: String },
     players: {
-        maitreBonBon: playersSchema,
-        agentFbi: playersSchema,
-        zero: playersSchema,
+        maitreBonBon: { type: playersSchema, default: getDefaultPlayers },
+        agentFbi: { type: playersSchema, default: getDefaultPlayers },
+        zero: { type: playersSchema, default: getDefaultPlayers },
     },
     software: {
-        zero: zeroSoftwareSchema,
+        zero: { type: zeroSoftwareSchema, default: getDefaultZero },
     },
-    attackNow: [Schema.Types.Mixed], // Utilisation de Schema.Types.Mixed pour accepter tout type
+    attackNow: { type: Array, default: [] },
     settings: {
         start: { type: Boolean, default: false },
     },
     aide: {
-        zero: {},
-        maitreBonBon: {},
-        agentFbi: {},
+        zero: { type: Object, default: getDefaultPlayers },
+        maitreBonBon: { type: Object, default: getDefaultPlayers },
+        agentFbi: { type: Object, default: getDefaultPlayers },
     },
 });
+
+
 
 export default mongoose.model<Party>('Party', partySchema);
