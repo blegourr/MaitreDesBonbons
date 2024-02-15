@@ -1,10 +1,10 @@
-const Pool = require('../Pool');
-const FunctionDbUser = require('../../db/Fucntion/User')
+import PoolModel from '../Pool';
+import { getUserByUserID } from './User';
 
 // Fonction pour créer une pool
-async function createPool(poolID, users = {}) {
+export async function createPool(poolID: string, users: Record<string, any> = {}) {
   try {
-    const pool = new Pool({
+    const pool = new PoolModel({
       poolID,
       users,
     });
@@ -16,9 +16,9 @@ async function createPool(poolID, users = {}) {
 }
 
 // Fonction pour récupérer une pool par son poolID
-async function getPoolByPoolID(poolID) {
+export async function getPoolByPoolID(poolID: string) {
   try {
-    const pool = await Pool.findOne({ poolID });
+    const pool = await PoolModel.findOne({ poolID });
     return pool;
   } catch (error) {
     throw error;
@@ -26,9 +26,9 @@ async function getPoolByPoolID(poolID) {
 }
 
 // Fonction pour mettre à jour une pool par son poolId
-async function updatePoolByPoolID(poolId, updatedData) {
+export async function updatePoolByPoolID(poolId: string, updatedData: Record<string, any>) {
   try {
-    const updatedPool = await Pool.findOneAndUpdate({ poolId }, updatedData, { new: true });
+    const updatedPool = await PoolModel.findOneAndUpdate({ poolId }, updatedData, { new: true });
     return updatedPool;
   } catch (error) {
     throw error;
@@ -36,25 +36,24 @@ async function updatePoolByPoolID(poolId, updatedData) {
 }
 
 // Fonction pour supprimer une pool par son poolId
-async function deletePoolByPoolID(poolId) {
+export async function deletePoolByPoolID(poolId: string) {
   try {
-    await Pool.deleteOne({ poolId });
+    await PoolModel.deleteOne({ poolId });
   } catch (error) {
     throw error;
   }
 }
 
 // Fonction pour vérifier si un utilisateur se trouve dans une piscine
-async function isUserInAnyPool(userId) {
-   try {
-    const stringCherch = `users.${userId}.userId`
-    const queryObject = {};
+export async function isUserInAnyPool(userId: string) {
+  try {
+    const stringCherch = `users.${userId}.userId`;
+    const queryObject: Record<string, any> = {};
     queryObject[stringCherch] = userId;
-    const pool = await Pool.findOne(queryObject);
+    const pool = await PoolModel.findOne(queryObject);
     if (pool) {
       return pool.poolID; // Retourne l'ID de la piscine si l'utilisateur est trouvé
     }
-
     return null; // Retourne null si l'utilisateur n'est pas trouvé
   } catch (error) {
     console.error('Une erreur s\'est produite :', error);
@@ -63,9 +62,9 @@ async function isUserInAnyPool(userId) {
 }
 
 // Fonction pour renvoyer l'ID de la première piscine avec de la place
-async function getFirstAvailablePool() {
+export async function getFirstAvailablePool() {
   try {
-    const pools = await Pool.aggregate([
+    const pools = await PoolModel.aggregate([
       {
         $addFields: {
           userCount: { $size: { $objectToArray: '$users' } },
@@ -86,12 +85,11 @@ async function getFirstAvailablePool() {
   }
 }
 
-
 // Fonction pour ajouter un utilisateur à une piscine
-async function addUserToPool(poolId, userId, socketEmitUser) {
+export async function addUserToPool(poolId: string, userId: string, socketEmitUser: string) {
   try {
     // Recherchez la piscine par son poolId
-    const pool = await Pool.findOne({ poolID: poolId });
+    const pool = await PoolModel.findOne({ poolID: poolId });
 
     if (!pool) {
       // Si la piscine n'existe pas, vous pouvez prendre des mesures supplémentaires ici, par exemple, renvoyer une erreur.
@@ -101,9 +99,8 @@ async function addUserToPool(poolId, userId, socketEmitUser) {
 
     // Vérifiez le nombre d'utilisateurs dans la piscine
     if (pool.users.size < 3) {
-      // récupère les donnée de l'utilisateur
-      const user = await FunctionDbUser.getUserByUserID(userId)
-
+      // récupère les données de l'utilisateur
+      const user = await getUserByUserID(userId);
 
       // Ajoutez l'utilisateur à la piscine en utilisant la méthode set de la Map
       pool.users.set(userId, { userId: userId, avatar: user.avatar, name: user.name, socketEmitUser: socketEmitUser });
@@ -119,14 +116,3 @@ async function addUserToPool(poolId, userId, socketEmitUser) {
     console.error('Une erreur s\'est produite :', error);
   }
 }
-
-
-module.exports = {
-  createPool,
-  getPoolByPoolID,
-  updatePoolByPoolID,
-  deletePoolByPoolID,
-  isUserInAnyPool,
-  getFirstAvailablePool,
-  addUserToPool,
-};
